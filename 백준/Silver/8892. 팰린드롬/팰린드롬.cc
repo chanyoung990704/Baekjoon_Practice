@@ -19,6 +19,7 @@ bool isPalindrome(const string& str) {
 bool dfs(vector<string>& words, vector<bool>& visited, string& result, int cnt) {
     if (cnt == 2) { // 2개의 단어를 선택했을 때
         if (isPalindrome(result)) { // 팰린드롬인지 확인
+            cout << result << "\n";
             return true;
         }
         return false;
@@ -50,25 +51,12 @@ int main() {
         for (int i = 0; i < k; ++i) {
             cin >> words[i];
         }
-
-        vector<bool> visited(k, false);
         string result;
-        bool found = false;
+        vector<bool> visited(k, false);
 
-        for (int i = 0; i < k; ++i) {
-            visited[i] = true;
-            result = words[i];
-            if (dfs(words, visited, result, 1)) {
-                found = true;
-                cout << result << "\n";
-                break;
-            }
-            visited[i] = false;
-        }
-
-        if (!found) {
+        if (!dfs(words, visited, result, 0))
             cout << "0\n";
-        }
+
     }
     return 0;
 }
