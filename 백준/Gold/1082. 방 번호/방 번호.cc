@@ -55,11 +55,9 @@ int main() {
 	int idx1 = 0;
 	while (M >= 0 && idx1 < result.size() && result[0] != '0')
 	{
-		char char_num = result[idx1];
-		string str_num(1, char_num);
-		int curIdx = stoi(str_num);
-
+		int curIdx = result[idx1] - '0';
 		int curPrice = priceInt[curIdx].second;
+
 		for (int i = N - 1; i > curIdx; i--) {
 			int nextPrice = priceInt[i].second;
 			if (M - (nextPrice - curPrice) >= 0)
