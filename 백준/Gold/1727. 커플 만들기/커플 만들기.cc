@@ -1,38 +1,34 @@
 #include <cstdio>
-#include <algorithm>
 #include <cstring>
+#include <cmath>
+#include <algorithm>
 using namespace std;
 
-template <typename T>
-inline T abs(T a) { return (a < 0 ? -a : a); }
+int N, M, *A, *B, man[1000], woman[1000], dp[1000][1000];
 
-int n, m, boy[1001], girl[1001], D[1001][1001];
+int minDiff(int a, int b){
+	if(a == N) return 0;
+	int &ret = dp[a][b];
+	if(ret != -1) return ret;
 
-int dp(int i, int j) {
-    if (i == 0 || j == 0)
-        return 0;
-    if (D[i][j] != -1)
-        return D[i][j];
-
-    D[i][j] = abs(boy[i] - girl[j]) + dp(i - 1, j - 1);
-    if (i > j)
-        D[i][j] = min(D[i][j], dp(i - 1, j));
-    if (i < j)
-        D[i][j] = min(D[i][j], dp(i, j - 1));
-
-    return D[i][j];
+	ret = minDiff(a+1, b+1) + abs(A[a] - B[b]);
+	if(N-a < M-b) ret = min(ret, minDiff(a, b+1));
+	return ret;
 }
 
-int main()
-{
-    memset(D, -1, sizeof(D));
-    scanf("%d %d", &n, &m);
-    for (int i = 1; i <= n; ++i)
-        scanf("%d", &boy[i]);
-    for (int i = 1; i <= m; ++i)
-        scanf("%d", &girl[i]);
-    sort(boy + 1, boy + n + 1), sort(girl + 1, girl + m + 1);
-
-    printf("%d\n", dp(n, m));
-    return 0;
+int main(){
+	scanf("%d %d", &N, &M);
+	for(int i=0; i<N; i++)
+		scanf("%d", man+i);
+	for(int i=0; i<M; i++)
+		scanf("%d", woman+i);
+	sort(man, man+N);
+	sort(woman, woman+M);
+	A = man; B = woman;
+	if(N > M){
+		swap(N, M);
+		swap(A, B);
+	}
+	memset(dp, -1, sizeof(dp));
+	printf("%d\n", minDiff(0, 0));
 }
