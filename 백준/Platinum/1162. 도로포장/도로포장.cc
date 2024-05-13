@@ -1,59 +1,68 @@
+#include <algorithm>
 #include <iostream>
 #include <vector>
 #include <queue>
 #include <tuple>
-#include <algorithm>
-#define INF 1e15
 
 using namespace std;
-typedef long long ll;
-typedef tuple<ll, int, int> edge; // 비용, 현재 노드, 포장 횟수
 
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
 
-    int n, m, k;
-    cin >> n >> m >> k;
+    int N, M, K;   cin >> N >> M >> K;
 
-    vector<vector<pair<int, int>>> graph(n + 1);
-    for (int i = 0; i < m; i++) {
-        int u, v, w;
-        cin >> u >> v >> w;
-        graph[u].push_back({v, w});
-        graph[v].push_back({u, w});
+    // 초기화
+    vector<vector<pair<int, int>>> adj(N + 1);
+    for(int i = 0 ; i < M ; i++){
+        int from, to, cost; cin >> from >> to >> cost;
+        adj[from].push_back(make_pair(to, cost));
+        adj[to].push_back(make_pair(from, cost));
     }
 
-    // 다차원 벡터로 최소 비용을 저장, 초기값은 무한대
-    vector<vector<ll>> dist(n + 1, vector<ll>(k + 1, INF));
-    dist[1][0] = 0; // 시작점 초기화
+    // 다익스트라 구하기
+    int start_idx = 1, finish_idx = N;
+    vector<vector<long long>> dist(N + 1, vector<long long>(K + 1, 1e15)); // 최소 거리 배열
+    priority_queue<tuple<long long, int, int>, vector<tuple<long long, int, int>>, greater<tuple<long long, int, int>>> pq; // 최소힙 < 거리, 인덱스, 포장 횟수 >
+    dist[start_idx][0] = 0;
+    pq.push(make_tuple(0, start_idx, 0));
 
-    priority_queue<edge, vector<edge>, greater<edge>> pq;
-    pq.push({0, 1, 0}); // 초기 비용, 시작 노드, 포장 횟수
+    while(!pq.empty()) {
 
-    while (!pq.empty()) {
-        auto [cost, u, used] = pq.top();
+        long long cur_dist = (get<0>(pq.top()));
+        int cur_idx = get<1>(pq.top());
+        int cur_cnt = get<2>(pq.top());
         pq.pop();
 
-        if (cost > dist[u][used]) continue;
+        // basecase
+        if(dist[cur_idx][cur_cnt] < cur_dist)
+            continue;
 
-        for (auto &[v, w] : graph[u]) {
+        // 간선 탐색
+        for(auto& next : adj[cur_idx]) {
+            int next_idx = next.first;
+            long long additional_dist = next.second;
+            long long total_dist = cur_dist + additional_dist;
+
             // 포장하지 않는 경우
-            if (dist[v][used] > cost + w) {
-                dist[v][used] = cost + w;
-                pq.push({dist[v][used], v, used});
+            if(total_dist < dist[next_idx][cur_cnt]) {
+                dist[next_idx][cur_cnt] = total_dist;
+                pq.push(make_tuple(total_dist, next_idx, cur_cnt));
             }
+
             // 포장하는 경우
-            if (used < k && dist[v][used + 1] > cost) {
-                dist[v][used + 1] = cost;
-                pq.push({dist[v][used + 1], v, used + 1});
+            if(cur_cnt < K && dist[next_idx][cur_cnt + 1] > cur_dist){
+                dist[next_idx][cur_cnt + 1] = cur_dist;
+                pq.push(make_tuple(cur_dist, next_idx, cur_cnt + 1));
             }
+
         }
     }
 
-    // 모든 포장 횟수에 대해 최소 비용을 찾음
-    ll answer = *min_element(dist[n].begin(), dist[n].end());
-    cout << answer << endl;
+    long long result = *min_element(dist[finish_idx].begin(), dist[finish_idx].end());
 
-    return 0;
+    cout << result << "\n";
+
+    
 }
