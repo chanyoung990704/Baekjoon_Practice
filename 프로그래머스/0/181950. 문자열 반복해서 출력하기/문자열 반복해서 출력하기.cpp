@@ -7,9 +7,11 @@ int main(void) {
     string str;
     int n;
     cin >> str >> n;
-    string tmp = str;
-    for(int i = 1 ; i < n ; i++)
-        str = str + tmp;
-    cout << str;
+    
+    string result = "";
+    for(int i = 0 ; i < n ; i++)
+        result.append(str);
+    
+    cout << result << "\n";
     return 0;
 }
