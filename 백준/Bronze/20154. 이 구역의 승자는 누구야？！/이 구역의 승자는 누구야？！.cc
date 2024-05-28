@@ -1,39 +1,42 @@
+#include <algorithm>
 #include <iostream>
 #include <vector>
+
 using namespace std;
 
 int main() {
-    string input;
-    cin >> input;
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
     
-    // 알파벳 대문자의 획수 매핑
+
     int strokes[26] = {3, 2, 1, 2, 3, 3, 3, 3, 1, 1, 3, 1, 3, 3, 1, 2, 2, 2, 1, 2, 1, 1, 2, 2, 2, 1};
-    vector<int> numbers;
-    
-    // 입력 문자열을 획수로 변환
-    for(char ch : input) {
-        numbers.push_back(strokes[ch - 'A']);
+
+    string s;   cin >> s;
+
+    vector<int> scores;
+    for(auto& c : s) {
+        scores.push_back(strokes[c - 'A']);
     }
-    
-    // 획수 더하기
-    while(numbers.size() > 1) {
-        vector<int> temp;
-        for(int i = 0; i < numbers.size(); i += 2) {
-            if(i + 1 < numbers.size()) {
-                temp.push_back((numbers[i] + numbers[i+1]) % 10);
-            } else {
-                temp.push_back(numbers[i]);
+
+
+    while(scores.size() > 1) {
+        vector<int> tmp;
+        for(int i = 0 ; i < scores.size() ; i += 2){
+            if(i + 1 < scores.size()){
+                tmp.push_back((scores[i] + scores[i + 1]) % 10);
+            }else{
+                tmp.push_back(scores[i]);
             }
+
         }
-        numbers = temp;
+        scores = tmp;
     }
-    
-    // 승자 결정
-    if(numbers[0] % 2 == 1) {
-        cout << "I'm a winner!";
-    } else {
-        cout << "You're the winner?";
+
+    if(scores[0] % 2 == 0){
+        cout << "You're the winner?\n";
+    }else{
+        cout << "I'm a winner!\n";
     }
-    
-    return 0;
+
 }
