@@ -1,10 +1,10 @@
 # [level 1] 핸드폰 번호 가리기 - 12948 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/12948) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/12948?language=java) 
 
 ### 성능 요약
 
-메모리: 4.24 MB, 시간: 0.01 ms
+메모리: 76.4 MB, 시간: 0.04 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2024년 05월 20일 01:17:54
+2024년 07월 10일 18:24:53
 
 ### 문제 설명
 
