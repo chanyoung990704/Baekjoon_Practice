@@ -9,7 +9,7 @@ class Solution {
         for(String cur : babbling) {            
             for(String s : canBabbling){
                 if(cur.contains(s))
-                    cur = cur.replace(s, " ");
+                    cur = cur.replaceFirst(s, " ");
             }
             
             if(cur.trim().isEmpty())
