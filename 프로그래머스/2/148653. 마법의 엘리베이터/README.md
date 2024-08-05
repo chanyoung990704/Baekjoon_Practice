@@ -1,10 +1,10 @@
 # [level 2] 마법의 엘리베이터 - 148653 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/148653?language=cpp) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/148653?language=java) 
 
 ### 성능 요약
 
-메모리: 4.16 MB, 시간: 0.02 ms
+메모리: 77.1 MB, 시간: 0.08 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2024년 08월 05일 16:37:13
+2024년 08월 05일 16:38:56
 
 ### 문제 설명
 
