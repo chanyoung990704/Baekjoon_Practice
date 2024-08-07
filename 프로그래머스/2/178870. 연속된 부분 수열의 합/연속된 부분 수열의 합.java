@@ -1,27 +1,22 @@
 class Solution {
     public int[] solution(int[] sequence, int k) {
-        int[] answer = {0, 0};
+        int[] answer = {0, 10000000};
         
-        int lo = 0;
-        int hi = 0;
+        int len = sequence.length;
+        int intervalSum = 0;
+        int end = 0;
         
-        int total = 0;
-        int len = Integer.MAX_VALUE;
-        while(hi < sequence.length) {
-            total += sequence[hi];
+        for(int start = 0 ; start < len ; start++){
             
-            while(lo <= hi && total > k){
-                total -= sequence[lo++];
-            }
-            
-            if(total == k){
-                if(hi - lo < len){
-                    len = hi - lo;
-                    answer[0] = lo;
-                    answer[1] = hi;
+            while(end < len && intervalSum < k) intervalSum += sequence[end++];
+            if(intervalSum == k){
+                int cur = answer[1] - answer[0];
+                if((end - 1) - start < cur){
+                    answer[0] = start;
+                    answer[1] = end - 1;
                 }
             }
-            hi++;
+            intervalSum -= sequence[start];
         }
         
         return answer;
