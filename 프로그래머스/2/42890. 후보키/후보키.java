@@ -1,69 +1,53 @@
 import java.util.*;
+import java.util.stream.*;
 
 class Solution {
-    Set<String> candidateKeys = new HashSet<>();
-    String[][] relations;
-    int colSize, rowSize;
+    int row, col;
+    String[][] relation;
+    Set<String> candidateKey = new HashSet<>();
     
     public int solution(String[][] relation) {
-        colSize = relation[0].length;
-        rowSize = relation.length;
-        relations = relation;
         
-        for (int i = 1; i <= colSize; i++) {
-            combination(0, "", colSize, i);
-        }
+        row = relation.length;
+        col = relation[0].length;
+        this.relation = relation;
         
-        return candidateKeys.size();
+        for(int i = 1 ; i <= col ; i++) combination(0, col, i, "");
+        
+        return candidateKey.size();
     }
     
-    void combination(int idx, String current, int n, int r) {
-        if (current.length() == r) {
-            if (isUnique(current) && isMinimal(current)) {
-                candidateKeys.add(current);
-            }
-            return;
+    
+    void combination(int idx, int col, int cnt, String res){
+        if(res.length() == cnt){
+            if(isUnique(res) && isMinimal(res)) candidateKey.add(res);
         }
-        
-        for (int i = idx; i < n; i++) {
-            combination(i + 1, current + i, n, r);
-        }
+        for(int i = idx ; i < col ; i++) combination(i + 1, col, cnt, res + i);
     }
     
-    boolean isUnique(String columns) {
-        Set<String> uniqueSet = new HashSet<>();
-        for (int i = 0; i < rowSize; i++) {
+    boolean isUnique(String res){
+        Set<String> set = new HashSet<>();
+        for(int i  = 0 ; i < row ; i++){
             StringBuilder sb = new StringBuilder();
-            for (char c : columns.toCharArray()) {
-                int col = c - '0';
-                sb.append(relations[i][col]).append(",");
-            }
-            if (!uniqueSet.add(sb.toString())) {
-                return false;
-            }
+            for(char colIdx : res.toCharArray()) sb.append(relation[i][colIdx - '0']).append(",");
+            if(!set.add(sb.toString())) return false;
         }
         return true;
     }
     
-    boolean isMinimal(String columns) {
-        for (String key : candidateKeys) {
-            if (isSubset(key, columns)) {
-                return false;
-            }
-        }
-        return true;
+    boolean isMinimal(String res) {
+        for(String key : candidateKey)
+            if(isSubSet(key, res)) return false;
+        return true; 
     }
     
-    boolean isSubset(String key, String columns) {
-        Set<Character> columnSet = new HashSet<>();
-        for (char c : columns.toCharArray()) {
-            columnSet.add(c);
-        }
-        for (char c : key.toCharArray()) {
-            if (!columnSet.contains(c)) {
-                return false;
-            }
-        }
+    boolean isSubSet(String key, String res){
+        Set<Character> resSet = res.chars()
+            .mapToObj(ch -> (char)ch)
+            .collect(Collectors.toSet());
+        
+        for(char k : key.toCharArray())
+            if(!resSet.contains(k)) return false;
         return true;
     }
 }
