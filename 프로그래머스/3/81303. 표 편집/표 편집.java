@@ -2,53 +2,42 @@ import java.util.*;
 
 class Solution {
     public String solution(int n, int k, String[] cmd) {
-        TreeSet<Integer> activeRows = new TreeSet<>();
-        Stack<Integer> removedIndices = new Stack<>();
         
-        // 초기화: 모든 행을 활성 상태로 추가
-        for (int i = 0; i < n; i++) {
-            activeRows.add(i);
-        }
+        TreeSet<Integer> numArr = new TreeSet<>();
+        Deque<Integer> removed = new ArrayDeque<>();
         
-        int currentIndex = k;
+        for(int i = 0 ; i < n ; i++) numArr.add(i);
+        int cur = k;
         
-        for (String command : cmd) {
-            String[] parts = command.split(" ");
-            String operation = parts[0];
+        for(String c : cmd) {
+            String[] ops = c.split(" ");
+            String op = ops[0];
             
-            if (operation.equals("U")) {
-                int x = Integer.parseInt(parts[1]);
-                while (x > 0) {
-                    currentIndex = activeRows.lower(currentIndex);
-                    x--;
+            if(op.equals("D")){
+                int cnt = Integer.parseInt(ops[1]);
+                while(cnt > 0){
+                    cur = numArr.higher(cur);
+                    cnt--;
                 }
-            } else if (operation.equals("D")) {
-                int x = Integer.parseInt(parts[1]);
-                while (x > 0) {
-                    currentIndex = activeRows.higher(currentIndex);
-                    x--;
+            }else if(op.equals("U")){
+                int cnt = Integer.parseInt(ops[1]);
+                while(cnt > 0){
+                    cur = numArr.lower(cur);
+                    cnt--; 
                 }
-            } else if (operation.equals("C")) {
-                removedIndices.push(currentIndex);
-                activeRows.remove(currentIndex);
-                
-                // 다음 인덱스 설정
-                if (activeRows.higher(currentIndex) != null) {
-                    currentIndex = activeRows.higher(currentIndex);
-                } else {
-                    currentIndex = activeRows.lower(currentIndex);
-                }
-            } else if (operation.equals("Z")) {
-                int restoredIndex = removedIndices.pop();
-                activeRows.add(restoredIndex);
+            }else if(op.equals("C")){
+                removed.offerLast(cur);
+                numArr.remove(cur);
+                if(numArr.higher(cur) == null) cur = numArr.lower(cur);
+                else cur = numArr.higher(cur);      
+            }else if(op.equals("Z")){
+                numArr.add(removed.pollLast());
             }
         }
         
-        StringBuilder result = new StringBuilder("O".repeat(n));
-        while (!removedIndices.isEmpty()) {
-            result.setCharAt(removedIndices.pop(), 'X');
-        }
         
-        return result.toString();
+        StringBuilder sb = new StringBuilder("O".repeat(n));
+        for(int r : removed) sb.setCharAt(r, 'X');
+        return sb.toString();
     }
 }
