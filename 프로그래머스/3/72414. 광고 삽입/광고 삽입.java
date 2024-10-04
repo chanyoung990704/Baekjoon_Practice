@@ -5,7 +5,7 @@ class Solution {
     public String solution(String play_time, String adv_time, String[] logs) {
         int play = timeConvertInt(play_time);
         int adv = timeConvertInt(adv_time);
-        long[] timeline = new long[play + 2];
+        long[] timeline = new long[play + 1];
         
         for(String log : logs){
             String[] times = log.split("-");
