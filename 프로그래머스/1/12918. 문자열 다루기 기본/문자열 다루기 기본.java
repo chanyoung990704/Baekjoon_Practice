@@ -1,18 +1,14 @@
-import java.util.*;
-import java.util.regex.*;
 class Solution {
     public boolean solution(String s) {
+        boolean answer = true;
         
-        Pattern p = Pattern.compile("\\d+");
-        Matcher m = p.matcher(s);
+        // length
+        if(!(s.length() == 4 || s.length() == 6)) return false;
         
-        if(!m.matches())
-            return false;
+        // All digit
+        s = s.replaceAll("[0-9]", "");
+        if(!s.isEmpty()) return false;
         
-        if(!(s.length() == 4 || s.length() == 6))
-            return false;
-        
-        return true;
-
+        return answer;
     }
 }
