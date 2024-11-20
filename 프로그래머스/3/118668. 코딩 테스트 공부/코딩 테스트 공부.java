@@ -6,6 +6,8 @@ class Solution {
         int max_a = Arrays.stream(problems).mapToInt(i -> i[0]).max().orElse(0);
         int max_c = Arrays.stream(problems).mapToInt(i -> i[1]).max().orElse(0);
         
+        if(max_a <= alp && max_c <= cop) return 0;
+        
         alp = Math.min(alp, max_a);
         cop = Math.min(cop, max_c);
                 
