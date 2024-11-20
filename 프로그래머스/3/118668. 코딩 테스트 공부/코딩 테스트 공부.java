@@ -1,37 +1,37 @@
-import java.util.Arrays;
+import java.util.*;
+import java.util.stream.*;
 
 class Solution {
     public int solution(int alp, int cop, int[][] problems) {
-        int max_alp = Arrays.stream(problems).mapToInt(i -> i[0]).max().orElse(0);
-        int max_cop = Arrays.stream(problems).mapToInt(i -> i[1]).max().orElse(0);
+        int max_a = Arrays.stream(problems).mapToInt(i -> i[0]).max().orElse(0);
+        int max_c = Arrays.stream(problems).mapToInt(i -> i[1]).max().orElse(0);
         
-        alp = Math.min(alp, max_alp);
-        cop = Math.min(cop, max_cop);
-        
-        int[][] dp = new int[max_alp + 1][max_cop + 1];
+        alp = Math.min(alp, max_a);
+        cop = Math.min(cop, max_c);
+                
+        int[][] dp = new int[max_a + 1][max_c + 1];
         for (int[] row : dp) Arrays.fill(row, Integer.MAX_VALUE);
         
         dp[alp][cop] = 0;
         
-        for (int i = alp; i <= max_alp; i++) {
-            for (int j = cop; j <= max_cop; j++) {
-                if (i < max_alp) {
-                    dp[i + 1][j] = Math.min(dp[i + 1][j], dp[i][j] + 1);
-                }
-                if (j < max_cop) {
-                    dp[i][j + 1] = Math.min(dp[i][j + 1], dp[i][j] + 1);
-                }
+        for(int i = alp ; i <= max_a ; i++){
+            for(int j = cop ; j <= max_c ; j++){
                 
-                for (int[] problem : problems) {
-                    if (i >= problem[0] && j >= problem[1]) {
-                        int next_alp = Math.min(max_alp, i + problem[2]);
-                        int next_cop = Math.min(max_cop, j + problem[3]);
-                        dp[next_alp][next_cop] = Math.min(dp[next_alp][next_cop], dp[i][j] + problem[4]);
+                if(j < max_c) dp[i][j + 1] = Math.min(dp[i][j + 1], dp[i][j] + 1);
+                if(i < max_a) dp[i + 1][j] = Math.min(dp[i + 1][j], dp[i][j] + 1);
+                
+                for(int[] p : problems){
+                    if(p[0] <= i && p[1] <= j){
+                        int na = Math.min(max_a, i + p[2]);
+                        int nc = Math.min(max_c, j + p[3]);
+                        dp[na][nc] = Math.min(dp[na][nc], dp[i][j] + p[4]);
                     }
                 }
+                
             }
         }
         
-        return dp[max_alp][max_cop];
+        
+        return dp[max_a][max_c];
     }
 }
