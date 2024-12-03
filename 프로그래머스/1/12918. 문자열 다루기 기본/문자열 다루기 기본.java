@@ -1,14 +1,13 @@
+import java.util.regex.*;
+
 class Solution {
     public boolean solution(String s) {
-        boolean answer = true;
+        int len = s.length();
+        if (!(len == 4 || len == 6)) return false;
         
-        // length
-        if(!(s.length() == 4 || s.length() == 6)) return false;
+        Pattern p = Pattern.compile("\\b\\d+\\b");
+        Matcher m = p.matcher(s);
         
-        // All digit
-        s = s.replaceAll("[0-9]", "");
-        if(!s.isEmpty()) return false;
-        
-        return answer;
+        return m.matches();
     }
 }
