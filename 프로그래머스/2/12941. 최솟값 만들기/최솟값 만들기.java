@@ -1,5 +1,5 @@
-import java.util.stream.*;
 import java.util.*;
+import java.util.stream.*;
 
 class Solution
 {
@@ -8,11 +8,16 @@ class Solution
         
         Arrays.sort(A);
         Arrays.sort(B);
+                
+        int len = A.length;
+        int ans = 0;
+
+        for(int i = 0 ; i < len ; i++){
+            ans += A[i] * B[len - i - 1];
+        }
+
+
         
-        return (int)IntStream.range(0, A.length)
-            .map(i -> {
-                return A[i] * B[B.length - 1 - i];
-            })
-            .sum();
+        return ans;
     }
 }
