@@ -3,19 +3,14 @@ import java.util.stream.*;
 
 class Solution {
     public String solution(String s) {
+        List<Integer> list = Arrays.stream(s.split(" "))
+            .map(Integer::valueOf)
+            .collect(Collectors.toList());
         
-        StringBuilder sb = new StringBuilder();
+        int min = Collections.min(list);
+        int max = Collections.max(list);
         
-        int min = Arrays.stream(s.split(" "))
-            .mapToInt(Integer::valueOf)
-            .min().getAsInt();
-        
-        int max = Arrays.stream(s.split(" "))
-            .mapToInt(Integer::valueOf)
-            .max().getAsInt();        
-        
-        sb.append(min).append(" ").append(max);
-        
-        return sb.toString();
+        String answer = String.valueOf(min) + " " + String.valueOf(max);
+        return answer;
     }
 }
