@@ -1,33 +1,33 @@
+import java.util.*;
 class Solution {
     public int[] solution(long begin, long end) {
         
-        int len = (int)(end - begin) + 1;
-        
+        int len = (int)(end - begin + 1);
         int[] answer = new int[len];
+        Arrays.fill(answer, 1);
+        int idx = 0;
         
-        for(long i = begin ; i <= end ; i++){
-            int idx = (int)(i - begin);
-            answer[idx] = getVal(i);
+        while(begin <= end){
+            
+            if(begin == 1){
+                answer[idx] = 0;
+            }
+            
+            for(long i = 2 ; i <= Math.sqrt(begin) ; i++){
+                if(begin % i == 0){
+                    answer[idx] = Math.max(answer[idx], (int)i);
+                    long val = begin / i;
+                    if(val <= 10000000){
+                        answer[idx] = Math.max(answer[idx], (int) val);
+                    }
+                }
+            }
+            
+            
+            idx++;
+            begin++;
         }
         
         return answer;
-    }
-    
-    
-    int getVal(long n){
-        
-        if(n == 1) return 0;
-        
-        int ret = 1;
-        for(int i = 2 ; i <= Math.sqrt(n) ; i++){
-            if(n % i == 0){
-                if(i <= 10000000)
-                    ret = Math.max(ret, i);
-                if(n / i <= 10000000)
-                    ret = Math.max(ret, (int)n / i);
-            }
-        }
-        
-        return ret;
     }
 }
