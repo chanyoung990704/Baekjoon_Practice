@@ -20,16 +20,13 @@ public class Main {
         int end = AB[1];
         int dist = Math.abs(start - end);
 
-        boolean isPossible = false;
-
         for(int cur : list)
             if(Math.abs(cur - end) < dist){
                 start = cur;
                 dist = Math.abs(cur - end);
-                isPossible = true;
             }
 
-        if(isPossible) cnt = 1;
+        if(start != AB[0]) cnt = 1;
         
         System.out.println(cnt + dist);
 
