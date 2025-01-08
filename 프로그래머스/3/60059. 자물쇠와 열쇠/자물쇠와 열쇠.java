@@ -1,58 +1,83 @@
 import java.util.*;
 
 class Solution {
-    int len;
-    int lockLen;
+    int[][] key, lock;
 
     public boolean solution(int[][] key, int[][] lock) {
-        len = key.length;
-        lockLen = lock.length;
-        
-        // lock 3배 확장 & 중앙에 lock 삽입
-        int[][] newLock = new int[lockLen * 3][lockLen * 3];
-        for (int i = 0; i < lockLen; i++)
-            for (int j = 0; j < lockLen; j++)
-                newLock[lockLen + i][lockLen + j] = lock[i][j];
-        
-        for (int turn = 0; turn < 4; turn++) {
-            key = rotateKey(key); // 회전 후 key 업데이트
-            
-            for (int sy = 0; sy <= lockLen * 2; sy++) {
-                for (int sx = 0; sx <= lockLen * 2; sx++) {
-                    
-                    // key를 newLock에 더하기
-                    for (int i = 0; i < len; i++)
-                        for (int j = 0; j < len; j++)
-                            newLock[sy + i][sx + j] += key[i][j];
-                    
-                    // lock이 열리는지 확인
-                    if (isOk(newLock)) return true;
-                    
-                    // key를 newLock에서 빼기
-                    for (int i = 0; i < len; i++)
-                        for (int j = 0; j < len; j++)
-                            newLock[sy + i][sx + j] -= key[i][j];                    
+        this.key = key;
+        this.lock = lock;
+
+        int M = key.length;
+        int N = lock.length;
+
+        // 확장된 자물쇠 생성
+        int[][] extendedLock = new int[3 * N][3 * N];
+        for (int i = N; i < 2 * N; i++) {
+            for (int j = N; j < 2 * N; j++) {
+                extendedLock[i][j] = lock[i - N][j - N];
+            }
+        }
+
+        // 열쇠 이동 및 회전
+        for (int sy = 0; sy < 2 * N; sy++) { // 범위 수정
+            for (int sx = 0; sx < 2 * N; sx++) { // 범위 수정
+
+                for (int cnt = 0; cnt < 4; cnt++) { // 회전 4번 수행
+                    turnKey();
+
+                    // 열쇠 삽입
+                    if (insertKeyAndCheck(extendedLock, sy, sx)) return true;
+
+                    // 열쇠 제거
+                    removeKey(extendedLock, sy, sx);
                 }
             }
         }
-        
+
         return false;
     }
-    
-    boolean isOk(int[][] newLock) {
-        for (int i = lockLen; i < lockLen * 2; i++)
-            for (int j = lockLen; j < lockLen * 2; j++)
-                if (newLock[i][j] != 1) return false; // 수정: 1인지 확인
+
+    boolean insertKeyAndCheck(int[][] extendedLock, int sy, int sx) {
+        int M = key.length;
+        int N = lock.length;
+
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < M; j++) {
+                extendedLock[i + sy][j + sx] += key[i][j];
+            }
+        }
+
+        // 중앙 영역 확인
+        return isAll(extendedLock, N);
+    }
+
+    void removeKey(int[][] extendedLock, int sy, int sx) {
+        int M = key.length;
+
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < M; j++) {
+                extendedLock[i + sy][j + sx] -= key[i][j];
+            }
+        }
+    }
+
+    boolean isAll(int[][] exlock, int N) {
+        for (int i = N; i < 2 * N; i++) {
+            for (int j = N; j < 2 * N; j++) {
+                if (exlock[i][j] != 1) return false;
+            }
+        }
         return true;
     }
-    
-    int[][] rotateKey(int[][] key) {
-        int[][] newKey = new int[len][len];
-        
-        for (int i = 0; i < len; i++)
-            for (int j = 0; j < len; j++)
-                newKey[j][len - i - 1] = key[i][j];
-        
-        return newKey;
+
+    void turnKey() {
+        int M = key.length;
+        int[][] rotated = new int[M][M];
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < M; j++) {
+                rotated[j][M - i - 1] = key[i][j];
+            }
+        }
+        key = rotated;
     }
 }
