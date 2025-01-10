@@ -1,101 +1,90 @@
 import java.io.*;
 import java.util.*;
+import java.util.stream.*;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+    static class Snake{
+        int y;
+        int x;
+        Snake(int y, int x){
+            this.y = y;
+            this.x = x;
+        }
+    }
+    
+    static int[] dy = new int[]{0,1,0,-1};
+    static int[] dx = new int[]{1,0,-1,0};
+
+    static int dir = 0;
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        Map<String, Boolean> apple = new HashMap<>();
-        Map<Integer, Character> dir = new HashMap<>();
-        LinkedList<String> snake = new LinkedList<>();
+        int N = Integer.valueOf(br.readLine());
+        int K = Integer.valueOf(br.readLine());
 
-        int N = Integer.parseInt(br.readLine());
-        int K = Integer.parseInt(br.readLine());
-        for (int i = 0; i < K; i++) {
-            int[] idx = Arrays.stream(br.readLine().split(" "))
-                    .mapToInt(Integer::parseInt)
-                    .toArray();
-            apple.put(idx[0] + "," + idx[1], true);
+        List<List<Integer>> gameMap = new ArrayList<>();
+        for(int i = 0 ; i< N ; i++) gameMap.add(new ArrayList<>(Collections.nCopies(N, 0)));
+
+        for(int i = 0 ; i < K ; i++){
+            String[] yx = br.readLine().split(" ");
+            int y = Integer.valueOf(yx[0]);
+            int x = Integer.valueOf(yx[1]);
+            gameMap.get(y - 1).set(x - 1, 1);
         }
 
-        int L = Integer.parseInt(br.readLine());
-        for (int i = 0; i < L; i++) {
-            String[] arr = br.readLine().split(" ");
-            int t = Integer.parseInt(arr[0]);
-            char d = arr[1].charAt(0);
-            dir.put(t, d);
+        int L = Integer.valueOf(br.readLine());
+        Map<Integer, String> timeMap = new HashMap<>();
+        for(int i = 0 ; i < L ; i++){
+            String[] timeDir = br.readLine().split(" ");
+            int t = Integer.valueOf(timeDir[0]);
+            timeMap.put(t, timeDir[1]);
         }
 
-        int time = 0;
-        snake.add("1,1");
-        int y = 1;
-        int x = 1;
-        char curDir = 'R';
+        // 게임 시작
+        int gameTime = 0;
+        dir = 0;
+        Deque<Snake> snakes = new ArrayDeque<>();
+        snakes.offer(new Snake(0, 0));
 
         while (true) {
-            time++;
-            int[] afterMove = move(y, x, curDir);
-            y = afterMove[0];
-            x = afterMove[1];
+            // 이동
+            Snake cur = snakes.peekLast();
+            int ny = cur.y + dy[dir];
+            int nx = cur.x + dx[dir];
 
-            if (y <= 0 || y > N || x <= 0 || x > N) break;
-
-            String cur = y + "," + x;
-            if (snake.contains(cur)) break;
-
-            snake.add(cur);
-
-            if (apple.containsKey(cur)) {
-                apple.remove(cur);
-            } else {
-                snake.removeFirst();
+            // 이동할 게 범위 밖이면
+            if(ny < 0 || ny >= N || nx < 0 || nx >= N) {
+                gameTime++;
+                break;
+            }else if(snakes.stream().anyMatch(s -> s.y == ny && s.x == nx)){ // 몸통 부딪히면
+                gameTime++;
+                break;
             }
 
-            if (dir.containsKey(time)) {
-                curDir = changeDirection(curDir, dir.get(time));
+            if(gameMap.get(ny).get(nx) != 1){
+                snakes.pollFirst();
+            }else{
+                gameMap.get(ny).set(nx, 0);
             }
-        }
+            snakes.offerLast(new Snake(ny, nx));
 
-        System.out.println(time);
-
-        br.close();
-    }
-
-    static int[] move(int y, int x, char direction) {
-        switch (direction) {
-            case 'R':
-                x += 1;
-                break;
-            case 'L':
-                x -= 1;
-                break;
-            case 'U':
-                y -= 1;
-                break;
-            case 'D':
-                y += 1;
-                break;
-        }
-        return new int[]{y, x};
-    }
-
-    static char changeDirection(char current, char turn) {
-        if (turn == 'D') {
-            switch (current) {
-                case 'R': return 'D';
-                case 'D': return 'L';
-                case 'L': return 'U';
-                case 'U': return 'R';
-            }
-        } else if (turn == 'L') {
-            switch (current) {
-                case 'R': return 'U';
-                case 'U': return 'L';
-                case 'L': return 'D';
-                case 'D': return 'R';
+            // 시간 증가 및 방향 전환
+            gameTime++;
+            if(timeMap.containsKey(gameTime)){
+                changeDir(timeMap.get(gameTime));
             }
         }
-        return current;
+
+        System.out.println(gameTime);
     }
+
+    static void changeDir(String d){
+        if(d.equals("D")) dir++;
+        if(d.equals("L")) dir--;
+
+        if(dir == 4) dir = 0;
+        if(dir == -1) dir  = 3;
+    }
+    
 }
