@@ -43,7 +43,7 @@ public class Main {
             int cnt = res[0];
             int val = res[1];
             
-            if(cnt >= N && val >= M){
+            if(cnt == N && val >= M){
                 ret = mid;
                 hi = mid -1;
             }else{
