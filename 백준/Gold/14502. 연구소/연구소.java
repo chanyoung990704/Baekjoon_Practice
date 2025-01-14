@@ -1,92 +1,122 @@
-import java.io.*;
 import java.util.*;
 import java.util.stream.*;
+import java.io.*;
 
 public class Main {
-
-    static int[] dy = new int[]{0, 0, -1, 1};
-    static int[] dx = new int[]{1, -1, 0, 0};
-    static int val = Integer.MIN_VALUE;
-    static List<List<Integer>> map;
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        int[] NM = Arrays.stream(br.readLine().split(" "))
-                         .mapToInt(Integer::valueOf)
-                         .toArray();
+        List<Integer> NM = Arrays.stream(br.readLine().split(" "))
+        .map(Integer::valueOf).collect(Collectors.toList());
 
-        map = new ArrayList<>();
-        for (int i = 0; i < NM[0]; i++) {
-            List<Integer> cur = Arrays.stream(br.readLine().split(" "))
-                                      .map(Integer::valueOf)
-                                      .collect(Collectors.toList());
-            map.add(cur);
+        int N = NM.get(0);
+        int M = NM.get(1);
+
+        int[][] m = new int[N][M];
+        List<int[]> list = new ArrayList<>(); // 빈칸 저장
+        for(int i = 0 ; i < N ; i++){
+            String[] cur = br.readLine().split(" ");
+            for(int j = 0 ; j < cur.length ; j++){
+                m[i][j] = Integer.valueOf(cur[j]);
+                if(m[i][j] == 0){
+                    list.add(new int[]{i, j});
+                }
+            }
         }
 
-        List<List<Integer>> blank = new ArrayList<>();
-        for (int i = 0; i < NM[0]; i++)
-            for (int j = 0; j < NM[1]; j++)
-                if (map.get(i).get(j) == 0) blank.add(List.of(i, j));
+        // 3개의 조합 뽑아내기
+        List<List<int[]>> comb = new ArrayList<>();
+        getComb(list, comb, new ArrayList<>(), 0);
+        int max = Integer.MIN_VALUE;
 
-        getCombination(0, blank, new ArrayList<>());
-        System.out.println(val);
+        // 조합 탐색하기
+        for(int i = 0 ; i < comb.size() ; i++){
+            // 빈칸에 벽을 세워보기
+            for(int j = 0 ; j < comb.get(i).size() ; j++){
+                int[] cur = comb.get(i).get(j);
+                m[cur[0]][cur[1]] = 1;
+            }
 
-        br.close();
+            // BFS
+            max = Math.max(max, bfs(m));
+
+            // 세운 벽 없애기
+            for(int j = 0 ; j < comb.get(i).size() ; j++){
+                int[] cur = comb.get(i).get(j);
+                m[cur[0]][cur[1]] = 0;
+            }
+        }
+
+        System.out.println(max);
     }
 
-    static void getCombination(int idx, List<List<Integer>> blank, List<List<Integer>> result) {
-        if (result.size() == 3) {
-            val = Math.max(val, getBFS(result));
-            return;
-        }
-        for (int i = idx; i < blank.size(); i++) {
-            result.add(blank.get(i));
-            getCombination(i + 1, blank, result);
-            result.remove(result.size() - 1);
-        }
-    }
+    static int bfs(int[][] org){
 
-    static int getBFS(List<List<Integer>> result) {
-        List<List<Integer>> curMap = new ArrayList<>();
-        for (List<Integer> row : map) {
-            curMap.add(new ArrayList<>(row));
+        int[][] m = new int[org.length][org[0].length];
+        for(int i = 0 ; i < m.length ; i++){
+            for(int j = 0 ; j < m[0].length ; j++){
+                m[i][j] = org[i][j];
+            }
         }
-        for (List<Integer> re : result) curMap.get(re.get(0)).set(re.get(1), 1);
-    
-        boolean[][] visited = new boolean[curMap.size()][curMap.get(0).size()];
-    
-        for (int i = 0; i < curMap.size(); i++)
-            for (int j = 0; j < curMap.get(0).size(); j++) {
-                if (!visited[i][j] && curMap.get(i).get(j) == 2) {
-                    Deque<List<Integer>> dq = new ArrayDeque<>();
-                    dq.offer(List.of(i, j));
+
+        boolean[][] visited = new boolean[m.length][m[0].length];
+
+        for(int i = 0 ; i < m.length ; i++){
+            for(int j = 0 ; j < m[0].length ; j++) {
+                int cur = m[i][j];
+                // 바이러스이면 BFS 진행
+                if(cur == 2 && !visited[i][j]){
+                    Deque<int[]> dq = new ArrayDeque<>();
+                    dq.offer(new int[]{i, j});
                     visited[i][j] = true;
-    
+
                     while (!dq.isEmpty()) {
-                        List<Integer> cur = dq.pollFirst();
-                        for (int k = 0; k < 4; k++) {
-                            int ny = cur.get(0) + dy[k];
-                            int nx = cur.get(1) + dx[k];
-                            if (isBoundary(ny, nx) && !visited[ny][nx] && curMap.get(ny).get(nx) == 0) {
-                                visited[ny][nx] = true;
-                                curMap.get(ny).set(nx, 2);  // 바이러스 확산
-                                dq.offer(List.of(ny, nx));
+                        int y = dq.peek()[0];
+                        int x = dq.peek()[1];
+                        dq.poll();
+                        int[] dx = new int[]{0,0,1,-1};
+                        int[] dy = new int[]{1,-1,0,0};
+
+                        for(int dir = 0 ; dir < 4 ; dir++){
+                            int ny = y + dy[dir];
+                            int nx = x + dx[dir];
+                            if(ny >= 0 && ny < m.length && nx >= 0 && nx < m[0].length){
+                                if(!visited[ny][nx] && m[ny][nx] == 0){
+                                    visited[ny][nx] = true;
+                                    m[ny][nx] = 1;
+                                    dq.offer(new int[]{ny, nx});
+                                }
                             }
                         }
                     }
+
                 }
             }
-    
+        }
+
+        // 전체 맵에서 안전 영역 몇개인지
         int cnt = 0;
-        for (int i = 0; i < curMap.size(); i++)
-            for (int j = 0; j < curMap.get(0).size(); j++)
-                if (curMap.get(i).get(j) == 0) cnt++;
-    
+        for(int i = 0 ; i < m.length ; i++){
+            for(int j = 0 ; j < m[0].length ; j++){
+                if(m[i][j] == 0){
+                    cnt++;
+                }
+            }
+        }
+
         return cnt;
     }
 
-    static boolean isBoundary(int y, int x) {
-        return y >= 0 && y < map.size() && x >= 0 && x < map.get(0).size();
+    static void getComb(List<int[]> list, List<List<int[]>> comb, List<int[]> visited, int idx){
+        if(visited.size() == 3){
+            comb.add(new ArrayList<>(visited));
+            return;
+        }
+
+        for(int i = idx ; i < list.size() ; i++){
+            visited.add(list.get(i));
+            getComb(list, comb, visited, i + 1);
+            visited.remove(visited.size() - 1);
+        }
     }
 }
