@@ -16,7 +16,8 @@ public class Main {
         int cnt = getCnt(sb);
     
         while (cnt > K) {
-            sb = new StringBuilder(Integer.toBinaryString(++N));
+            sb.setLength(0); // 기존 내용 초기화
+            sb.append(Integer.toBinaryString(++N));
             cnt = getCnt(sb);
         }
 
