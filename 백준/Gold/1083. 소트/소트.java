@@ -1,6 +1,7 @@
 import java.util.*;
 import java.util.stream.*;
 import java.io.*;
+import java.util.regex.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -14,10 +15,12 @@ public class Main {
         int S = Integer.valueOf(br.readLine());
 
         // 정렬 시도
-        for(int i = 0 ; i < list.size() - 1 && S > 0 ; i++){  // S > 0 조건 추가
+        for(int i = 0 ; i < list.size() - 1 ; i++){
             int cnt = 0;
             int idx = i;
-            
+            if(S <= 0){
+                break;
+            }
             for(int j = i + 1 ; j < list.size() ; j++) {
                 int curCnt = (j - i);
                 if(curCnt > S){
@@ -29,16 +32,13 @@ public class Main {
                 }
             }
 
-            if(cnt == 0){  // 현재가 최대이면 넘어가기
+            // 현재가 최대이면 넘어가기
+            if(cnt == 0 && idx == i){
                 continue;
             }
 
-            // swap 함수 수정
-            Long temp = list.get(idx);
-            for(int j = idx ; j > i ; j--) {
-                list.set(j, list.get(j-1));
-            }
-            list.set(i, temp);
+            // idx부터 i까지 스왑
+            swap(list, idx, i);
             S -= cnt;
         }
 
@@ -46,5 +46,13 @@ public class Main {
             list.stream().map(String::valueOf)
             .collect(Collectors.joining(" "))
         );
+    }
+
+    static void swap(List<Long> list, int end, int start) {
+        for(int i = end ; i > start ; i--) {
+            Long tmp = list.get(i);
+            list.set(i, list.get(i - 1));
+            list.set(i - 1, tmp);
+        }
     }
 }
