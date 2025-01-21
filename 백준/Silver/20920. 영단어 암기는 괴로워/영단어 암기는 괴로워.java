@@ -37,8 +37,8 @@ public class Main {
 
         List<Word> list = map.entrySet().stream()
         .map(i -> new Word(i.getKey(), i.getValue(), i.getKey().length()))
-        .sorted(Comparator.comparing((Word w) -> w.cnt)
-        .thenComparing((Word w) -> w.len).reversed()
+        .sorted(Comparator.comparing((Word w) -> w.cnt).reversed()
+        .thenComparing(Comparator.comparing((Word w) -> w.len).reversed())
         .thenComparing((Word w) -> w.name))
         .collect(Collectors.toList());
 
