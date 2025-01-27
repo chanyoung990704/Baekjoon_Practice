@@ -1,34 +1,36 @@
-import java.io.*;
 import java.util.*;
 import java.util.stream.*;
+import java.io.*;
+import java.util.regex.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));   
 
-        int N = Integer.parseInt(br.readLine());
-        List<Integer> numArr = new ArrayList<>(
-                        Arrays.stream(br.readLine().split(" "))
-                              .map(Integer::valueOf)
-                              .collect(Collectors.toList()));
-        
-        Collections.reverse(numArr);
+        int n = Integer.valueOf(br.readLine());
+        List<Integer> list = Arrays.stream(br.readLine().split(" "))
+        .map(Integer::valueOf).collect(Collectors.toList());
 
-        int[] dp = new int[N];
-        Arrays.fill(dp, 1);
+        Collections.reverse(list);
 
-        for(int i = 1 ; i < N ; i++){
-            for(int j = 0 ; j < i ; j++){
-                if(numArr.get(j) < numArr.get(i)){
-                    dp[i] = Math.max(dp[i], dp[j] + 1);
-                }
+        // 이분탐색으로 LIS 구하기
+        List<Integer> lis = new ArrayList<>();
+        for(int i = 0 ; i < list.size() ; i++){
+            int cur = list.get(i);
+
+            int pos = Collections.binarySearch(lis, cur);
+            if(pos < 0){
+                pos = -(pos + 1);
+            }
+
+            if(pos == lis.size()){
+                lis.add(cur);
+            }else{
+                lis.set(pos, cur);
             }
         }
 
-        int max = Arrays.stream(dp)
-                        .max().getAsInt();
-        System.out.println(N - max);
+        System.out.println(list.size() - lis.size());
 
-        br.close();
     }
 }
