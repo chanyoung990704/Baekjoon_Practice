@@ -32,6 +32,9 @@ public class Main {
 
     static int dfs(int cur, List<List<Integer>> graph, boolean[] visited) {
         visited[cur] = true;
+        if(graph.get(cur).isEmpty()){
+            return 0;
+        }
         List<Integer> times = new ArrayList<>();
         
         for(int next : graph.get(cur)) {
@@ -39,8 +42,6 @@ public class Main {
                 times.add(dfs(next, graph, visited));
             }
         }
-
-        if(times.isEmpty()) return 0; // 리프 노드
         
         Collections.sort(times, Collections.reverseOrder());
         int max = 0;
