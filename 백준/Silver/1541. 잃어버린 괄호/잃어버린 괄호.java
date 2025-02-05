@@ -1,26 +1,45 @@
-import java.io.*;
 import java.util.*;
 import java.util.stream.*;
+import java.io.*;
+import java.time.LocalDate;
+import java.util.regex.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));   
 
-        String str = br.readLine();
+        String input = br.readLine();
+        StringBuilder sb = new StringBuilder();
 
-        String[] parsed = str.split("-");
+        int total = 0;
+        boolean isMinus = false;
 
-        int sum = 0;
-
-        for(int i = 0 ; i < parsed.length ; i++){
-            int cur = 0;
-            String[] parsedI = parsed[i].split("\\+");
-            for(String s : parsedI) cur += Integer.valueOf(s);
-            
-            if(i == 0) sum += cur;
-            else sum -= cur;
+        for(char c : input.toCharArray()){
+            if(c == '+' || c == '-'){
+                int val = Integer.valueOf(sb.toString());
+                if(isMinus){
+                    total -= val;
+                }else{
+                    total += val;
+                }
+                if(c == '-'){
+                    isMinus = true;
+                }
+                sb.setLength(0);
+            }else{
+                sb.append(c);
+            }
         }
 
-        System.out.println(sum);
+        if(sb.length() > 0){
+            int val = Integer.valueOf(sb.toString());
+            if(isMinus){
+                total -= val;
+            }else{
+                total += val;
+            }
+        }
+        System.out.println(total);
     }
 }
+
