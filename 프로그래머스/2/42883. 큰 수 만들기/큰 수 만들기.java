@@ -1,28 +1,27 @@
 import java.util.*;
-import java.util.stream.*;
 
 class Solution {
     public String solution(String number, int k) {
-        String answer = "";
+
+        Deque<Integer> dq = new ArrayDeque<>();
         
-        Deque<Integer> q = new ArrayDeque<>();
-        
-        for(char n : number.toCharArray()){
-            int cur = n - '0';
-            while(!q.isEmpty() && k > 0 && q.peekLast() < cur){
+        for(char c : number.toCharArray()){
+            int n = c - '0';
+            
+            // 큰 값이 스택의 아래쪽에 위치하도록
+            while(!dq.isEmpty() && n > dq.peekLast() && k > 0){
+                dq.pollLast();
                 k--;
-                q.pollLast();
             }
-            q.offer(cur);
+            
+            dq.offerLast(n);
         }
         
-        while(k > 0){
-            k--;
-            q.pollLast();
+        StringBuilder sb = new StringBuilder();
+        while(!dq.isEmpty()){
+            sb.append(dq.pollFirst());
         }
         
-        return q.stream()
-            .map(String::valueOf)
-            .collect(Collectors.joining());
+        return sb.substring(0, sb.length() - k).toString();
     }
 }
