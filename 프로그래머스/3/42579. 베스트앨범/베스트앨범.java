@@ -3,55 +3,68 @@ import java.util.stream.*;
 
 class Solution {
     
-    class Song {
+    class Info{
+        String genre;
         int idx;
-        int cnt;
+        int plays;
         
-        Song(int idx, int cnt) {
+        Info(String genre, int idx, int plays){
+            this.genre = genre;
             this.idx = idx;
-            this.cnt = cnt;
+            this.plays = plays;
         }
         
-        int getCnt() {
-            return cnt;
-        }
-        
-        int getIdx() {
-            return idx;
+        String getGenre(){
+            return this.genre;
         }
     }
     
     public int[] solution(String[] genres, int[] plays) {
         
-        // 재생 횟수 Map
-        Map<String, Integer> playCntMap = new HashMap<>();
-        Map<String, PriorityQueue<Song>> playMap = new HashMap<>();
+        // Map으로 만들기
+        List<Info> list = new ArrayList<>();
+        for(int i = 0 ; i < plays.length ; i++){
+            list.add(new Info(genres[i], i, plays[i]));
+        }
+        Map<String, List<Info>> map = list.stream()
+            .collect(Collectors.groupingBy(Info::getGenre));
         
-        // 초기화
-        for(int i = 0; i < genres.length; i++) {
-            String g = genres[i];
-            int p = plays[i];
+        // 정렬하기
+        map = map.entrySet().stream()
+            .sorted(Map.Entry.comparingByValue(
+                Comparator.comparing(
+                    (List<Info> l) -> l.stream().mapToInt(i -> Integer.valueOf(i.plays)).sum(),
+                    Comparator.reverseOrder()
+                )
+            ))
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue,
+                (o, n) -> o,
+                LinkedHashMap::new
+            ));
+        
+        List<Integer> res = new ArrayList<>();
+        
+        for(Map.Entry<String, List<Info>> e : map.entrySet()){
+            String k = e.getKey();
+            List<Info> v = e.getValue();
             
-            playCntMap.put(g, playCntMap.getOrDefault(g, 0) + p);
-            playMap.computeIfAbsent(g, k -> new PriorityQueue<>(
-                Comparator.comparing(Song::getCnt).reversed()
-                .thenComparing(Comparator.comparing(Song::getIdx))
-            )).offer(new Song(i, p));
+            v.sort((a, b) -> {
+                if(a.plays == b.plays){
+                    return a.idx - b.idx;
+                }
+                return b.plays - a.plays;
+            });
+            
+            for(int i = 0 ; i < v.size() ; i++){
+                if(i == 2){
+                    break;
+                }
+                res.add(v.get(i).idx);
+            }
         }
         
-        return Arrays.stream(genres)
-            .distinct()
-            .sorted(Comparator.comparing(playCntMap::get).reversed())
-            .flatMap(genre -> {
-                PriorityQueue<Song> pq = playMap.get(genre);
-                List<Integer> list = new ArrayList<>();
-                for (int i = 0; i < 2 && !pq.isEmpty(); i++) {
-                    list.add(pq.poll().getIdx());
-                }
-                return list.stream();
-            })
-            .mapToInt(Integer::valueOf)
-            .toArray();
-        
+        return res.stream().mapToInt(Integer::valueOf).toArray();
     }
 }
