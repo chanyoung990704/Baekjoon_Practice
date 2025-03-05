@@ -4,26 +4,24 @@ import java.util.stream.*;
 class Solution {
     public String solution(String[] participant, String[] completion) {
         
+        Map<String, Integer> map = Arrays.stream(completion)
+            .collect(Collectors.toMap(String::valueOf, (s) -> 1, (o, n) -> o + n));
         
-        Map<String, Integer> map = new HashMap<>();
-        
-        for(String p : participant)
-            map.put(p, map.getOrDefault(p, 0) + 1);
-        
-        for(String c : completion){
-            int renewCnt = map.get(c) - 1;
-            if(renewCnt == 0)
-                map.remove(c);
-            else
-                map.put(c, renewCnt);
-        }
-        
-        String answer = "";
-        
-        for(Map.Entry<String, Integer> s : map.entrySet()){
-           answer = s.getKey(); 
-        }
-        
+        String answer = Arrays.stream(participant)
+            .filter(i -> {
+                if(!map.containsKey(i)){
+                    return true;
+                }
+                int v = map.get(i);
+                if(v - 1 == 0){
+                    map.remove(i);
+                }else{
+                    map.put(i, v - 1);
+                }
+                return false;
+            })
+            .findFirst().get();
+            
         return answer;
     }
 }
