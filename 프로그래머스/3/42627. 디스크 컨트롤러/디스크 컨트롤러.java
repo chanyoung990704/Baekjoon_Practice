@@ -3,37 +3,40 @@ import java.util.stream.*;
 
 class Solution {
     public int solution(int[][] jobs) {
-        int answer = 0;
         
-        PriorityQueue<int[]> minArrive = new PriorityQueue<>(
-                                    Comparator.comparing((a) -> a[0]));
-        PriorityQueue<int[]> minWork = new PriorityQueue<>(
-                                    Comparator.comparing((a) -> a[1]));
+        PriorityQueue<List<Integer>> pq = 
+            new PriorityQueue<>(Comparator.comparing((List<Integer> i) -> i.get(2))
+                               .thenComparing((List<Integer> i) -> i.get(1))
+                               .thenComparing((List<Integer> i) -> i.get(0))
+                               );
         
-        for(int[] job : jobs) minArrive.offer(job);
+        Arrays.sort(jobs, (a, b) -> a[0] - b[0]);
         
-        int cnt = 0;
-        int curT = 0;
+        int totalTime = 0;
+        int endTime = 0;
+        int count = 0;
+        int jobIdx = 0;
         
-        while(cnt < jobs.length) {
-            // 현재 시점에서 가능한 작업들 모두 minWork로
-            while(!minArrive.isEmpty() && minArrive.peek()[0] <= curT)
-                minWork.offer(minArrive.poll());
+        while(count < jobs.length) {
+            // 종료 시각 이전의 작업 모두 넣기
+            while(jobIdx < jobs.length && jobs[jobIdx][0] <= endTime){
+                pq.offer(List.of(jobIdx, jobs[jobIdx][0], jobs[jobIdx][1]));
+                jobIdx++;
+            }
             
-            if(minWork.isEmpty()) curT = minArrive.peek()[0];
-            else{
-                int[] cur = minWork.poll();
-                int waitingTime = curT - cur[0];
-                
-                curT += cur[1];
-                answer += waitingTime + cur[1];
-                
-                cnt++;
-                
+            if(pq.isEmpty()){
+                endTime = jobs[jobIdx][0];
+            }else{
+                List<Integer> cur = pq.poll();
+                totalTime += endTime - cur.get(1) + cur.get(2);
+                endTime += cur.get(2);
+                count++;
             }
             
         }
         
-        return answer / jobs.length;
+        
+        int answer = 0;
+        return totalTime / jobs.length;
     }
 }
