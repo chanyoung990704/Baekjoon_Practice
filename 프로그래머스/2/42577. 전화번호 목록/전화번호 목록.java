@@ -2,18 +2,15 @@ import java.util.*;
 import java.util.stream.*;
 
 class Solution {
-    public boolean solution(String[] phone_book) {
+    public boolean solution(String[] phone_book) {    
         boolean answer = true;
         
-        Set<String> set = Arrays.stream(phone_book)
-            .collect(Collectors.toSet());
+        Arrays.sort(phone_book);
         
-        for(String p : phone_book){
-            for(int i = 1 ; i < p.length() ; i++){
-                String prefix = p.substring(0, i);
-                if(set.contains(prefix)){
-                    return false;
-                }
+        for(int i = 0 ; i < phone_book.length - 1; i++){
+            if(phone_book[i + 1].startsWith(phone_book[i])){
+                answer = false;
+                break;
             }
         }
         
