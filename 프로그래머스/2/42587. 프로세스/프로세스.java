@@ -1,5 +1,6 @@
 import java.util.*;
 import java.util.stream.*;
+
 class Solution {
     
     class Process{
@@ -10,42 +11,43 @@ class Solution {
             this.idx = idx;
             this.priority = priority;
         }
-        
-        int getPriority(){
-            return this.priority;
-        }
     }
     
     public int solution(int[] priorities, int location) {
-                                                         
-        Deque<Process> waitingQueue = new ArrayDeque<>();
-        PriorityQueue<Process> pq = new PriorityQueue<>(
-        Comparator.comparing(Process::getPriority).reversed());
         
-        for(int i = 0 ; i < priorities.length ; i++){
-            pq.offer(new Process(i, priorities[i]));
-            waitingQueue.offer(new Process(i, priorities[i]));
-        }
+        // Process 큐로 만들기
+        Deque<Process> dq = new ArrayDeque<>(
+            IntStream.range(0, priorities.length)
+            .mapToObj(i -> new Process(i, priorities[i]))
+            .collect(Collectors.toList())
+        );
         
         int cnt = 0;
-        // 로직       
-        while(!waitingQueue.isEmpty()){
-            Process cur = waitingQueue.pollFirst();
-            // 실행
-            if(cur.getPriority() == pq.peek().getPriority()){
+        
+        while(!dq.isEmpty()){
+            // 현재 확인
+            Process cur = dq.pollFirst();
+            
+            boolean isMax = true;
+            for(Process p : dq){
+                if(p.priority > cur.priority){
+                    isMax = false;
+                    break;
+                }
+            }
+            
+            // 최대가 아니면
+            if(!isMax){
+                dq.offerLast(cur);
+            }else{
+                // 프로세스 실행
                 cnt++;
-                pq.poll();
                 if(cur.idx == location){
                     return cnt;
                 }
-            }else{
-                waitingQueue.offer(cur);
             }
-            
-            
         }
         
         return -1;
-        
     }
 }
