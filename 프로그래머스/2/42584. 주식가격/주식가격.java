@@ -1,26 +1,26 @@
 import java.util.*;
-import java.util.stream.*;
 
 class Solution {
-    public int[] solution(int[] prices) {
+    public int[] solution(int[] prices) {    
         int n = prices.length;
         int[] answer = new int[n];
         
         Deque<Integer> dq = new ArrayDeque<>();
-        for(int i = 0 ; i < n ; i++) {
-            
+        
+        for(int i = 0 ; i < n ; i++){
+            // 떨어지는 순간
             while(!dq.isEmpty() && prices[i] < prices[dq.peekLast()]){
-                int top = dq.pollLast();
-                answer[top] = i - top;
+                answer[dq.peekLast()] = i - dq.peekLast();
+                dq.pollLast();
             }
-            
-            dq.offer(i);
+            dq.offerLast(i);
         }
-
+        
         while(!dq.isEmpty()){
-            int top = dq.pollLast();
-            answer[top] = n - 1 - top;
+            int idx = dq.pollLast();
+            answer[idx] = n - 1 - idx;
         }
+        
         
         return answer;
     }
