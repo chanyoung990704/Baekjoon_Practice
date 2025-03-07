@@ -4,32 +4,37 @@ import java.util.stream.*;
 class Solution {
     public int[] solution(int[] progresses, int[] speeds) {
         
-        Deque<Integer> dq = IntStream.range(0, progresses.length)
+        List<Integer> res = new ArrayList<>();
+        Deque<Integer> dq = new ArrayDeque<>();
+        int n = progresses.length;
+        
+        // 배포 가능 시간으로 변경
+        int[] time = IntStream.range(0, n)
             .map(i -> {
                 int remain = 100 - progresses[i];
-                int curSpeed = speeds[i];
-                return remain % curSpeed == 0 ? remain / curSpeed 
-                    : remain / curSpeed + 1;
-            })
-            .boxed()
-            .collect(Collectors.toCollection(ArrayDeque::new));
+                int s = speeds[i];
+                return (remain + s - 1) / s;
+            }).toArray();
         
-        
-        List<Integer> answer = new ArrayList<>();
-        while(!dq.isEmpty()) {
-            
-            int day = dq.poll();
-            int cnt = 1;
-            
-            while(!dq.isEmpty() && dq.peek() <= day){
-                dq.poll();
-                cnt++;
+        // 로직
+        for(int i = 0 ; i < n ; i++){
+            // 배포 가능
+            if(!dq.isEmpty() && dq.peekFirst() < time[i]){
+                res.add(dq.size());
+                while(!dq.isEmpty()){
+                    dq.poll();
+                }
             }
-            
-            answer.add(cnt);
-            
+            dq.offerLast(time[i]);
         }
         
-        return answer.stream().mapToInt(Integer::valueOf).toArray();
+        if(!dq.isEmpty()){
+            res.add(dq.size());
+        }
+        
+        
+        return res.stream()
+            .mapToInt(Integer::valueOf)
+            .toArray();
     }
 }
