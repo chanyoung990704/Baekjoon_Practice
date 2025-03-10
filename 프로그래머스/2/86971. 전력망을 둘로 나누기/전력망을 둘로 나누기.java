@@ -1,51 +1,48 @@
 import java.util.*;
+import java.util.stream.*;
+
 class Solution {
-    
-    int[] parent;
-    
-    int findParent(int n){
-        if(n != parent[n]){
-            parent[n] = findParent(parent[n]);
-        }
-        return parent[n];
-    }
-    
-    void unionParent(int a, int b){
-        int rootA = findParent(a);
-        int rootB = findParent(b);
-        
-        if(rootA < rootB){
-            parent[rootB] = rootA;
-        }else{
-            parent[rootA] = rootB;
-        }
-    }
-    
     public int solution(int n, int[][] wires) {
-        int answer = Integer.MAX_VALUE;
-        parent = new int[n + 1];
-        
-        for(int i = 0 ; i < wires.length ; i++) {
-            for(int j = 1 ; j <= n ; j++){
-                parent[j] = j;
-            }
-            
-            for(int j = 0 ; j < wires.length ; j++){
-                if(i == j) continue;
-                unionParent(wires[j][0], wires[j][1]);
-            }
-            
-            int size1 = 0;
-            int root = findParent(1);
-            for(int j = 1 ; j <= n ; j++){
-                if(findParent(j) == root) size1++;
-            }
-            int size2 = n - size1;
-            
-            answer = Math.min(answer, Math.abs(size1 - size2));
+        int min = Integer.MAX_VALUE;
+        Map<Integer, List<Integer>> map = new HashMap<>();
+        for(int i = 0 ; i < wires.length ; i++){
+            int a = wires[i][0];
+            int b = wires[i][1];
+            map.computeIfAbsent(a, k -> new ArrayList<>()).add(b);
+            map.computeIfAbsent(b, k -> new ArrayList<>()).add(a);
         }
         
+        // 하나씩 끊어 보기
+        for(int[] wire : wires){
+            int a = wire[0];
+            int b = wire[1];
+            
+            map.get(a).remove((Integer) b);
+            map.get(b).remove((Integer) a);
+            
+            int aCnt = dfs(map, a, new boolean[n + 1]);
+            int bCnt = n - aCnt;
+            
+            min = Math.min(min, Math.abs(aCnt - bCnt));
+            
+            map.get(a).add(b);
+            map.get(b).add(a);
+        }
         
-        return answer;
+        return min;
+    }
+    
+    int dfs(Map<Integer, List<Integer>> map, int cur, boolean[] visited){
+        
+        int cnt = 1;
+        visited[cur] = true;
+        
+        for(int next : map.get(cur)){
+            if(!visited[next]){
+                cnt += dfs(map, next, visited);
+            }
+        }
+        
+        return cnt;
     }
 }
