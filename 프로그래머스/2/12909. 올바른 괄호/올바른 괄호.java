@@ -1,25 +1,26 @@
 import java.util.*;
+import java.util.stream.*;
 
 class Solution {
-    boolean solution(String s) {        
-        Stack<Character> stack = new Stack<>();
+    boolean solution(String s) {
         
-        for(char c : s.toCharArray()) {
-            // (일 경우
-            if(c == '(')
-                stack.push(c);
-            // )일 경우
-            else{
-                if(!stack.empty())
-                    stack.pop();
-                else
-                    return false;
-            }  
+        Deque<Character> dq = new ArrayDeque<>();
+        
+        for(char c : s.toCharArray()){
+            if(c == '('){
+                dq.offerLast(c);
+                continue;
+            }
+            
+            // 닫는 괄호 예외
+            if(c == ')' && dq.isEmpty()){
+                return false;
+            }else{
+                dq.pollLast();
+            }
         }
-    
-        if(!stack.empty())
-            return false;
         
-        return true;
+        
+        return dq.isEmpty();
     }
 }
