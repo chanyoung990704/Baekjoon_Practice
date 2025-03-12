@@ -1,43 +1,40 @@
+
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.*;
-import java.io.*;
-import java.time.LocalDate;
-import java.util.regex.*;
 
 public class Main {
+
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));   
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        int[] NS = Arrays.stream(br.readLine().split(" "))
-        .mapToInt(Integer::valueOf).toArray();
-
+        int[] NS = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
         int N = NS[0];
         int S = NS[1];
 
-        int[] nums = Arrays.stream(br.readLine().split(" "))
-        .mapToInt(Integer::valueOf).toArray();
+        int[] nums = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
 
         int lo = 0;
         int hi = 0;
 
-        int minLen = Integer.MAX_VALUE;
-        int total = 0;
+        int sum = 0;
+        int len = Integer.MAX_VALUE;
         while (hi < nums.length) {
-            total += nums[hi];
+            sum += nums[hi];
 
-            while (total >= S) {
-                minLen = Math.min(minLen, hi - lo + 1);
-                total -= nums[lo++];
+            while (sum >= S) {
+                if(len > hi - lo + 1){
+                    len = hi - lo + 1;
+                }
+                sum -= nums[lo++];
             }
 
             hi++;
         }
 
-        System.out.println(minLen == Integer.MAX_VALUE ? 0 : minLen);
-
+        System.out.println(len == Integer.MAX_VALUE ? 0 : len);
     }
 }
-
-
-
