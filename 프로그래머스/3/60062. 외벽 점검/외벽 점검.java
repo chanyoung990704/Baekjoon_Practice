@@ -2,54 +2,67 @@ import java.util.*;
 import java.util.stream.*;
 
 class Solution {
-    int[] dist;
-    int[] weak;
     public int solution(int n, int[] weak, int[] dist) {
-        int answer = dist.length + 1;
-        this.dist = dist;
-        this.weak = weak;
         
-        int len = weak.length;
-        List<Integer> weakList = new ArrayList<>(Arrays.stream(weak)
-                                                       .boxed()
-                                                       .collect(Collectors.toList()));
-        for(int w : weak) weakList.add(w + n);
+        // 원형 이어 붙이기
+        List<Integer> newWeak = Arrays.stream(weak).boxed().map(i -> i + n)
+            .collect(Collectors.toList());
         
-        boolean[] visited = new boolean[dist.length];
-        List<List<Integer>> permutations = new ArrayList<>();
-        getPermutation(visited, permutations, new ArrayList<>());
+        List<Integer> weakList = Arrays.stream(weak).boxed().collect(Collectors.toList());
+        weakList.addAll(newWeak);
         
-        for(int startIdx = 0 ; startIdx < len ; startIdx++) {
-            for(List<Integer> permutation : permutations) {
-                int count = 1;
-                int pos = weakList.get(startIdx) + permutation.get(count - 1);
-                for(int i = startIdx ; i < startIdx + len ; i++){
-                    if(pos < weakList.get(i)){
-                        count++;
-                        if(count > dist.length) break;
-                        pos = weakList.get(i) + permutation.get(count - 1);
+        // dist 순열
+        List<int[]> distPermutation = new ArrayList<>();
+        getPermutation(distPermutation, dist, new boolean[dist.length], new ArrayDeque<>());
+        
+        int ret = Integer.MAX_VALUE;
+        
+        for(int i = 0 ; i < weak.length ; i++){
+            int start = weakList.get(i);
+            
+            // 시작점부터 순열
+            for(int[] per : distPermutation){
+                int idx = 0;
+                int cnt = 0;
+                int need = start;
+                // 점검
+                for(int j = i ; j < i + weak.length ; j++){
+                    
+                    // 점검 완료된 것들
+                    if(need > weakList.get(j)){
+                        cnt++;
+                        continue;
+                    }
+                    
+                    // 친구 투입
+                    if(idx < per.length){
+                        need = weakList.get(j) + per[idx] + 1;
+                        idx++;
+                        cnt++;
                     }
                 }
-                answer = Math.min(answer, count);
+                
+                if(cnt == weak.length && idx <= per.length){
+                    ret = Math.min(ret, idx);
+                }
             }
         }
         
-        if(answer > dist.length) return -1;
-        
-        return answer;
+        return ret == Integer.MAX_VALUE ? -1 : ret;
     }
     
-    void getPermutation(boolean[] visited, List<List<Integer>> permutations, List<Integer> permutation){
-        if(permutation.size() == dist.length){
-            permutations.add(new ArrayList<>(permutation));
+    void getPermutation(List<int[]> permutation, int[] dist, boolean[] visited, Deque<Integer> res){
+        if(dist.length == res.size()){
+            permutation.add(res.stream().mapToInt(Integer::valueOf).toArray());
             return;
         }
-        for(int i = 0 ; i < dist.length ; i++) {
+        
+        for(int i = 0 ; i < dist.length ; i++){
             if(!visited[i]){
                 visited[i] = true;
-                permutation.add(dist[i]);
-                getPermutation(visited, permutations, permutation);
-                permutation.remove(permutation.size() - 1);
+                res.offerLast(dist[i]);
+                getPermutation(permutation, dist, visited, res);
+                res.pollLast();
                 visited[i] = false;
             }
         }
