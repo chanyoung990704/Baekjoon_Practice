@@ -2,25 +2,37 @@ import java.util.*;
 import java.util.stream.*;
 
 class Solution {
-    public long solution(int n, int[] works) {        
-        long total = Arrays.stream(works)
-                           .sum();
+    public long solution(int n, int[] works) {
         
+        // 우선순위 큐로 n번만큼 없애기
         
-        if(total <= n) return 0;
+        // 무조건 0 인경우
+        long total = Arrays.stream(works).sum();
+        if(total<=n){
+            return 0;
+        }
         
+        // 최대힙
         PriorityQueue<Integer> pq = new PriorityQueue<>(Comparator.reverseOrder());
-        for(int work : works) pq.offer(work);
+        for(int w : works){
+            pq.offer(w);
+        }
         
-        while(!pq.isEmpty() && n > 0) {
-            int max = pq.poll();
-            if(max > 0) pq.offer(max - 1);
+        // n번만큼 줄이기
+        while(n > 0){
+            pq.offer(pq.poll() - 1);            
             n--;
-        }        
- 
-        return pq.stream()
-                 .mapToLong(i -> i * i)
-                 .sum();
-  
+        }
+        
+        // 야근지수 계산
+        long answer = 0;
+        int size = pq.size();
+        
+        while(!pq.isEmpty()){
+            answer += (long)Math.pow(pq.poll(), 2);
+        }
+        
+        
+        return answer;
     }
 }
