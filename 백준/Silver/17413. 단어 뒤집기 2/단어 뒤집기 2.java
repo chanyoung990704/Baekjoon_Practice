@@ -1,36 +1,43 @@
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
-import java.util.stream.*;
-import java.io.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.time.*;
 import java.util.regex.*;
 
+
 public class Main {
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        String str = br.readLine();
+        String line = br.readLine();
 
-        Pattern p = Pattern.compile("<[\\w\\s]+>|\\s+|\\w+");
-        Matcher m = p.matcher(str);
+        // 공백 제외
+        Pattern p = Pattern.compile("<[\\w\\s]+>|\\w+|\\s+");
+        Matcher m = p.matcher(line);
 
         StringBuilder sb = new StringBuilder();
         while (m.find()) {
-            // 공백
-            if(m.group().trim().length() == 0){
-                sb.append(m.group());
+            String cur = m.group();
+            // 공백이면
+            if(cur.startsWith(" ")){
+                sb.append(cur);
             }
-
-            // <>
-            else if(m.group().startsWith("<")){
-                sb.append(m.group());
+            // <이면
+            else if(cur.startsWith("<")){
+                sb.append(cur);
             }
-
             else{
-                sb.append(new StringBuilder(m.group()).reverse());
+                // 뒤집기
+                StringBuilder tmp = new StringBuilder(cur);
+                sb.append(tmp.reverse());
             }
-
         }
 
         System.out.println(sb.toString());
-
     }
 }
