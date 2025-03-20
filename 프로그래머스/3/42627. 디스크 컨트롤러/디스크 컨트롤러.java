@@ -2,41 +2,55 @@ import java.util.*;
 import java.util.stream.*;
 
 class Solution {
+
+    class Work{
+        int idx;
+        int request;
+        int time;
+        
+        Work(int idx, int request, int time){
+            this.idx = idx;
+            this.request = request;
+            this.time = time;
+        }
+    }
+    
     public int solution(int[][] jobs) {
         
-        PriorityQueue<List<Integer>> pq = 
-            new PriorityQueue<>(Comparator.comparing((List<Integer> i) -> i.get(2))
-                               .thenComparing((List<Integer> i) -> i.get(1))
-                               .thenComparing((List<Integer> i) -> i.get(0))
-                               );
+        // 대기 큐 우선순위 소요시간 -> 요청 시각 -> 번호 작은거
+        PriorityQueue<Work> pq =
+            new PriorityQueue<>(Comparator.comparing((Work w) -> w.time)
+                               .thenComparing((Work w) -> w.request)
+                               .thenComparing((Work w) -> w.idx));
         
-        Arrays.sort(jobs, (a, b) -> a[0] - b[0]);
+        // 작업 시작
+        int time = 0;
+        List<Work> list = new ArrayList<>();
+        for(int i = 0 ; i < jobs.length ; i++){
+            list.add(new Work(i, jobs[i][0], jobs[i][1]));
+        }
+        list.sort(Comparator.comparing((Work w) -> w.request));
         
-        int totalTime = 0;
-        int endTime = 0;
-        int count = 0;
-        int jobIdx = 0;
-        
-        while(count < jobs.length) {
-            // 종료 시각 이전의 작업 모두 넣기
-            while(jobIdx < jobs.length && jobs[jobIdx][0] <= endTime){
-                pq.offer(List.of(jobIdx, jobs[jobIdx][0], jobs[jobIdx][1]));
-                jobIdx++;
+        int idx = 0;
+        int total = 0;
+        while(idx < list.size() || !pq.isEmpty()){
+            // 현재 시각 이전 작업
+            while(idx < list.size() && list.get(idx).request <= time){
+                pq.offer(list.get(idx));
+                idx++;
             }
             
-            if(pq.isEmpty()){
-                endTime = jobs[jobIdx][0];
+            // 작업 진행
+            if(!pq.isEmpty()){
+                Work cur = pq.poll();
+                time += cur.time;
+                total += time - cur.request;
             }else{
-                List<Integer> cur = pq.poll();
-                totalTime += endTime - cur.get(1) + cur.get(2);
-                endTime += cur.get(2);
-                count++;
+                time = list.get(idx).request;
             }
-            
+
         }
         
-        
-        int answer = 0;
-        return totalTime / jobs.length;
+        return total / list.size();
     }
 }
