@@ -2,69 +2,53 @@ import java.util.*;
 import java.util.stream.*;
 
 class Solution {
-    
-    class ToCost{
-        int idx;
-        int cost;
-        
-        ToCost(int idx, int cost){
-            this.idx = idx;
-            this.cost = cost;
-        }
-        
-        int getIdx(){return idx;}
-        int getCost(){return cost;}
-    }
-    
     public int solution(int n, int[][] edge) {
-        
-        
         // 다익스트라
-        List<List<ToCost>> adj = new ArrayList<>();
+    
+        // 노드 수 n 간선 정보 edge
+        List<List<Integer>> graph = new ArrayList<>();
         for(int i = 0 ; i <= n ; i++){
-            adj.add(new ArrayList<>());
+            graph.add(new ArrayList<>());
         }
-        // 간선 초기화
         for(int[] e : edge){
-            adj.get(e[0]).add(new ToCost(e[1], 1));
-            adj.get(e[1]).add(new ToCost(e[0], 1));
+            graph.get(e[0]).add(e[1]);
+            graph.get(e[1]).add(e[0]);
         }
         
-        // 거리 저장
-        int[] dist = new int[n + 1];
+        // 1번부터 다익스트라
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]);
+        pq.offer(new int[]{0, 1});
+        int[] dist = new int[n+1];
         Arrays.fill(dist, Integer.MAX_VALUE);
-        
-        PriorityQueue<ToCost> pq = 
-            new PriorityQueue<>(Comparator.comparing(ToCost::getCost)
-                               .thenComparing(Comparator.comparing(ToCost::getIdx)));
-        
-        pq.offer(new ToCost(1, 0));
         dist[1] = 0;
+        int max = 0;
         
         while(!pq.isEmpty()){
-            ToCost cur = pq.poll();
-            if(cur.cost > dist[cur.idx]){
+            int[] cur = pq.poll();
+            int idx = cur[1];
+            int d = cur[0];
+            // 불가능
+            if(dist[idx] < d){
                 continue;
             }
-            
-            for(ToCost ne : adj.get(cur.idx)){
-                int nextCost = cur.cost + ne.cost;
-                if(nextCost < dist[ne.idx]){
-                    dist[ne.idx] = nextCost;
-                    pq.offer(new ToCost(ne.idx, nextCost));
+        
+            for(int next : graph.get(idx)){
+                int nextDist = d + 1;
+                if(dist[next] > nextDist){
+                    dist[next] = nextDist;
+                    pq.offer(new int[]{nextDist, next});
+                    max = Math.max(max, nextDist);
                 }
             }
         }
         
-        // 최대 멀리 있는 값
-        
-        return (int) IntStream.range(1, n + 1)
-            .map(i -> dist[i])
-            .filter(i -> i == IntStream.range(1, n + 1)
-                    .map(j -> dist[j])
-                    .max().orElse(0)
-                   )
-            .count();
-            
+        int answer = 0;
+        // 순회
+        for(int i = 1 ; i <= n ; i++){
+            if(dist[i] == max){
+                answer++;
+            }
+        }
+        return answer;
     }
 }
