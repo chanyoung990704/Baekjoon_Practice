@@ -1,25 +1,39 @@
-import java.util.*;
-
 class Solution {
-    int[] sequence;
-    
     public long solution(int[] sequence) {
-        this.sequence = sequence;
-        long answer = Math.max(getMaxSum(1), getMaxSum(-1));
-        return answer;
-    }
-    
-    long getMaxSum(int pulse){
-        long total = 0;
-        long segment = 0;
         
-        for(int i = 0 ; i < sequence.length ; i++) {
-            int cur = sequence[i] * pulse;
-            segment = Math.max(segment + cur, cur);
-            total = Math.max(total, segment);
-            pulse *= -1;
+        // 처음 1인 시퀀스
+        int[] sequence1 = new int[sequence.length];
+        
+        // 처음 -1인 시퀀스
+        int[] sequence2 = new int[sequence.length];
+        
+        for(int i = 0 ; i < sequence.length ; i++){
+            if(i % 2 == 0){
+                sequence1[i] = sequence[i];
+                sequence2[i] = sequence[i] * -1;
+            }
+            else{
+                sequence1[i] = sequence[i] * -1;
+                sequence2[i] = sequence[i];
+            }
         }
         
-        return total;
+        // 카데인 알고리즘
+        long answer = 0;
+        long sub = 0;
+        
+        // 1번 시퀀스
+        for(int i = 0 ; i < sequence.length ; i++){
+            sub = Math.max(sub + sequence1[i], sequence1[i]);
+            answer = Math.max(answer, sub);
+        }
+        
+        sub = 0;
+        // 2번 시퀀스
+        for(int i = 0 ; i < sequence.length ; i++){
+            sub = Math.max(sub + sequence2[i], sequence2[i]);
+            answer = Math.max(answer, sub);
+        }
+        return answer;
     }
 }
