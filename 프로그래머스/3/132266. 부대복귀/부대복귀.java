@@ -1,43 +1,55 @@
 import java.util.*;
 import java.util.stream.*;
-
 class Solution {
     public int[] solution(int n, int[][] roads, int[] sources, int destination) {
+        // 지역 수 n 지역 왕복 길 정보 roads
+        // 부대원 위치 서로 다른 지역 sources
+        // 강철부대 지역 destination
         
-        List<List<Integer>> list = new ArrayList<>();
-        for(int i = 0 ; i <= n ; i++) list.add(new ArrayList<>());
-        for(int[] road : roads){
-            list.get(road[0]).add(road[1]);
-            list.get(road[1]).add(road[0]);
+        
+        // destination부터 다익스트라
+        
+        // 간선 입력
+        Map<Integer, List<Integer>> graph = new HashMap<>();
+        for(int[] r : roads){
+            graph.computeIfAbsent(r[0], k->new ArrayList<>()).add(r[1]);
+            graph.computeIfAbsent(r[1], k->new ArrayList<>()).add(r[0]);
         }
         
-        // 다익스트라
-        int[] dist = new int[n + 1];
-        for(int i = 0 ; i <= n ; i++) Arrays.fill(dist, Integer.MAX_VALUE);
-        
-        PriorityQueue<List<Integer>> pq = new PriorityQueue<>(Comparator.comparing((a) -> a.get(1)));
-        pq.offer(List.of(destination, 0));
+        // 거리
+        int[] dist = new int[n+1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
         dist[destination] = 0;
         
-        while(!pq.isEmpty()) {
-            List<Integer> cur = pq.poll();
-            if(cur.get(1) > dist[cur.get(0)]) continue;
+        // 거리, 인덱스 거리 최소힙
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a,b)->a[0]-b[0]);
+        pq.offer(new int[]{0, destination});
+        
+        while(!pq.isEmpty()){
+            int[] cur = pq.poll();
+            int i = cur[1];
+            int d = cur[0];
             
-            for(int next : list.get(cur.get(0))){
-                int nextCost = cur.get(1) + 1;
-                if(dist[next] > nextCost){
-                    dist[next] = nextCost;
-                    pq.offer(List.of(next, nextCost));
-                }
+            if(dist[i] < d){
+                continue;
             }
             
+            // 이동
+            for(int next : graph.get(i)){
+                int nextD = d + 1;
+                if(dist[next] > nextD){
+                    dist[next] = nextD;
+                    pq.offer(new int[]{nextD, next});
+                }
+            }
         }
-                
-        return Arrays.stream(sources)
-            .map(i -> {
-                if(dist[i] == Integer.MAX_VALUE) return -1;
-                else return dist[i];
-            })
-            .toArray();
+        
+        // source 순으로 거리 출력
+        int[] answer = new int[sources.length];
+        for(int i = 0 ; i < sources.length ; i++){
+            answer[i] = dist[sources[i]] == Integer.MAX_VALUE ? -1 : dist[sources[i]];
+        }
+        
+        return answer;
     }
 }
