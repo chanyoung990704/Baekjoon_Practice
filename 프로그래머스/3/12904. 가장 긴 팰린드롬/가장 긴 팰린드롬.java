@@ -1,24 +1,32 @@
-class Solution {
-    public int solution(String s) {
+class Solution
+{
+    public int solution(String s)
+    {
         int answer = 0;
-
-        for (int i = 0; i < s.length(); i++) {
-            int len1 = expandFromCenter(s, i, i);
-            int len2 = expandFromCenter(s, i, i + 1);
+        int max = Integer.MIN_VALUE;
+        for(int i = 0 ; i < s.length() ; i++){
+            char c = s.charAt(i);
+            // 좌우 투포인터 진행
+            int left = i;
+            int right = i;
             
-            int maxLen = Math.max(len1, len2);
-            answer = Math.max(answer, maxLen);
+            while(left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)){
+                max = Math.max(max, right - left + 1);
+                right++;
+                left--;
+            }
+            
+            if(i < s.length() - 1){
+                left = i;
+                right = i + 1;
+                while(left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)){
+                    max = Math.max(max, right - left + 1);
+                    right++;
+                    left--;
+                }                
+            }
         }
         
-        return answer;
+        return max;
     }
-    
-    private int expandFromCenter(String s, int left, int right) {
-        while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
-            left--;
-            right++;
-        }
-        return right - left - 1;
-    }
-
 }
