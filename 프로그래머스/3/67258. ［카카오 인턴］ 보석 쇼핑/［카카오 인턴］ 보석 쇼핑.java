@@ -1,40 +1,60 @@
 import java.util.*;
+import java.util.stream.*;
 
 class Solution {
-    String[] gems;
-    Set<String> distinctGem;
-    
     public int[] solution(String[] gems) {
-        this.gems = gems;
-        int len = gems.length;
-        int end = 0;
         
-        distinctGem = new HashSet<>(Arrays.asList(gems));
-        Map<String, Integer> gemCount = new HashMap<>();
-        List<int[]> answer = new ArrayList<>();
+        // 모든 보석의 개수 확인
+        int all = (int)Arrays.stream(gems)
+            .distinct()
+            .count();
+
+        int[] answer = new int[2];
+        int len = Integer.MAX_VALUE;
         
-        for(int start = 0 ; start < len ; start++) {
-            while(end < len && gemCount.size() < distinctGem.size()) {
-                gemCount.put(gems[end], gemCount.getOrDefault(gems[end], 0) + 1);
-                end++;
+        
+        // 투포인터
+        int lo = 0;
+        int hi = 0;
+        
+        Map<String, Integer> gemMap = new HashMap<>();
+        int cnt = 0;
+        
+        while(hi < gems.length){
+            // 담기
+            String cur = gems[hi];
+            
+            // 처음 담는 것이면 개수 추가
+            if(!gemMap.containsKey(cur)){
+                cnt++;
+            }
+            gemMap.put(cur, gemMap.getOrDefault(cur, 0) + 1);
+            
+            // 모든게 담겼는지 확인
+            while(cnt == all){
+                // 현재 값 저장 후 
+                int curLen = hi - lo + 1;
+                if(curLen < len){
+                    len = curLen;
+                    answer[0] = lo + 1;
+                    answer[1] = hi + 1;
+                }
+                
+                // 줄여보기
+                String left = gems[lo];
+                gemMap.put(left, gemMap.getOrDefault(left, 0) - 1);
+                
+                if(gemMap.get(left) == 0){
+                    gemMap.remove(left);
+                    cnt--;
+                }
+                
+                lo++;
             }
             
-            if(gemCount.size() == distinctGem.size()) {
-                answer.add(new int[]{start + 1, end});
-            }
-            
-            gemCount.put(gems[start], gemCount.get(gems[start]) - 1);
-            if(gemCount.get(gems[start]) == 0) {
-                gemCount.remove(gems[start]);
-            }
+            hi++;
         }
         
-        answer.sort((a, b) -> {
-            if(a[1] - a[0] != b[1] - b[0])
-                return (a[1] - a[0]) - (b[1] - b[0]);
-            return a[0] - b[0];
-        });
-        
-        return answer.get(0);
+        return answer;
     }
 }
