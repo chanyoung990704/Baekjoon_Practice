@@ -1,40 +1,53 @@
+import java.util.*;
+import java.util.stream.*;
+
 class Solution {
-    int[] stones;
-    int k;
     public int solution(int[] stones, int k) {
-        this.stones = stones;
-        this.k = k;
-        
         int answer = 0;
+        
+        // 이분탐색
+        
         int lo = 1;
         int hi = 200000000;
         
-        while(lo <= hi) {
-            int mid = (lo + hi) / 2;
-            if(isPossible(mid)){
-                // 사람 수 늘리기
+        while(lo <= hi){
+            // 건널 수 있는 친구 수
+            int mid = lo + (hi - lo) / 2;
+            
+            // 가능하면
+            if(getCnt(stones, mid, k)){
                 answer = mid;
                 lo = mid + 1;
             }else{
-                // 사람 수 줄이기
                 hi = mid - 1;
             }
         }
         
-        
         return answer;
     }
     
-    boolean isPossible(int mid){
-        int cnt = 0;
-        for(int s : stones) {
-            // 못건너는 돌의 개수
-            if(s - mid < 0) cnt++;
-            else cnt = 0;
+    boolean getCnt(int[] stones, int m, int k){
+        
+        int consecutive = 0;
+        
+        for(int i = 0 ; i < stones.length ; i++){
+            int s = stones[i];
+            // 0개 이하가 연속 k개 발생하면
+            if(consecutive >= k){
+                return false;
+            }
             
-            // 연속 k개 이상이면
-            if(cnt >= k) return false;
+            if(s - m < 0){
+                consecutive++;
+            }else{
+                consecutive = 0;
+            }
         }
+        
+        if(consecutive >= k){
+            return false;
+        }
+        
         return true;
     }
 }
