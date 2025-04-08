@@ -1,46 +1,56 @@
 import java.util.*;
+import java.util.stream.*;
 
 class Solution {
-    private int[] info;
-    private List<List<Integer>> graph;
-    private int maxSheep;
-
+    int[] info;
+    int answer = 0;
     public int solution(int[] info, int[][] edges) {
         this.info = info;
-        this.graph = new ArrayList<>();
-        for (int i = 0; i < info.length; i++) {
-            graph.add(new ArrayList<>());
-        }
-        for (int[] edge : edges) {
-            graph.get(edge[0]).add(edge[1]);
+        
+        // 그래프
+        Map<Integer, List<Integer>> graph = new HashMap<>();
+        for(int[] edge : edges){
+            int p = edge[0];
+            int c = edge[1];
+            graph.computeIfAbsent(p, k -> new ArrayList<>()).add(c);
         }
         
-        Set<Integer> nextNodes = new HashSet<>();
-        nextNodes.add(0);
-        boolean[] visited = new boolean[info.length];
-        dfs(0, 0, 0, nextNodes, visited);
-        
-        return maxSheep;
+        Set<Integer> nexts = new HashSet<>();
+        nexts.add(0);
+        dfs(graph, 0, 0, 0, nexts);
+            
+        return answer;
     }
-
-    private void dfs(int node, int sheep, int wolf, Set<Integer> nextNodes, boolean[] visited) {
-        if (info[node] == 0) sheep++;
-        else wolf++;
+    
+    void dfs(Map<Integer, List<Integer>> graph, int cur, int sheep, int wolf, Set<Integer> nexts){
+                
+        if(info[cur] == 0){
+            sheep++;
+        }else{
+            wolf++;
+        }
         
-        if (wolf >= sheep) return;
+        // 양의 숫자와 늑대의 숫자
+        if(sheep <= wolf){
+            return;
+        }
         
-        maxSheep = Math.max(maxSheep, sheep);
+        answer = Math.max(answer, sheep);
         
-        Set<Integer> newNextNodes = new HashSet<>(nextNodes);
-        newNextNodes.remove(node);
-        newNextNodes.addAll(graph.get(node));
-        
-        for (int next : newNextNodes) {
-            if (!visited[next]) {
-                boolean[] newVisited = Arrays.copyOfRange(visited, 0, visited.length);
-                newVisited[next] = true;
-                dfs(next, sheep, wolf, newNextNodes, newVisited);
+        // 다음 경로 업데이트
+        Set<Integer> updated = new HashSet<>(nexts);
+        updated.remove(cur);
+        if(graph.containsKey(cur)){
+            for(int n : graph.get(cur)){
+                updated.add(n);
             }
         }
+        
+        // 진행
+        for(int next : updated){
+            dfs(graph, next, sheep, wolf, updated);
+        }
+        
     }
+    
 }
