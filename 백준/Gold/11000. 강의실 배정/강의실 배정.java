@@ -1,39 +1,47 @@
-import java.util.*;
-import java.util.stream.*;
 import java.io.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+
+    static class MeetingRoom {
+        int start;
+        int end;
+
+        public MeetingRoom(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+    }
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        int T = Integer.valueOf(br.readLine());
+        int N = Integer.parseInt(br.readLine());
+        List<MeetingRoom> rooms = new ArrayList<>();
 
-        List<List<Integer>> list = new ArrayList<>(); // 시작, 끝
-        for(int i = 0 ; i < T ; i++){
-            list.add(
-                Arrays.stream(br.readLine().split(" "))
-                .map(Integer::valueOf).collect(Collectors.toList())
-            );
+        for (int i = 0; i < N; i++) {
+            int[] se = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+            rooms.add(new MeetingRoom(se[0], se[1]));
         }
 
-        // 시작 시간 오름차순
-        list.sort(Comparator.comparing((List<Integer> l) -> l.get(0)));
+        rooms.sort(Comparator.comparing((MeetingRoom r) -> r.start)
+                .thenComparing(r -> r.end));
 
-        // 종료 시간 최소 힙
-        PriorityQueue<List<Integer>> pq = new PriorityQueue<>(Comparator.comparing(
-            (List<Integer> l) -> l.get(1)
-        ));
+        PriorityQueue<MeetingRoom> pq = new PriorityQueue<>(Comparator.comparing((MeetingRoom r) -> r.end));
 
-        // 더미 데이터
-        pq.offer(List.of(-1, -1));
-        for(int i = 0 ; i < list.size() ; i++){
-            List<Integer> cur = list.get(i);
-            if(!pq.isEmpty()){
-                if(pq.peek().get(1) <= cur.get(0)){
-                    pq.poll();
-                }
-                pq.offer(new ArrayList<>(cur));
+        for (int i = 0; i < rooms.size(); i++) {
+            if (i == 0) {
+                pq.offer(rooms.get(i));
+                continue;
             }
+
+            MeetingRoom room = rooms.get(i);
+            if (room.start >= pq.peek().end) {
+                pq.poll();
+            }
+            pq.add(room);
         }
 
         System.out.println(pq.size());
