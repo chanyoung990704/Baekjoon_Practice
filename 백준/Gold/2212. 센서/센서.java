@@ -1,31 +1,29 @@
-import java.util.*;
-import java.util.stream.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int N = Integer.parseInt(br.readLine());
+        int K = Integer.parseInt(br.readLine());
 
-        int N = Integer.valueOf(br.readLine());
-        int K = Integer.valueOf(br.readLine());
+        int[] nums = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
 
-        
-        List<Integer> list = Arrays.stream(br.readLine().split(" "))
-        .map(Integer::valueOf).sorted().collect(Collectors.toList());
-
-        List<Integer> dist = new ArrayList<>();
-        // 차이 값 저장
-        for(int i = 1 ; i < list.size() ; i++){
-            dist.add(list.get(i) - list.get(i - 1));
+        Arrays.sort(nums);
+        PriorityQueue<Integer> distance = new PriorityQueue<>(Collections.reverseOrder());
+        for (int i = 0; i < nums.length - 1; i++) {
+            distance.add(nums[i + 1] - nums[i]);
         }
 
-        int result = 0;
-        dist.sort(Comparator.reverseOrder());
+        int total = nums[nums.length - 1] - nums[0];
+        int cur = 1;
 
-        for(int i = K - 1; i < dist.size() ; i++){
-            result += dist.get(i);
+        while (!distance.isEmpty() && cur < K) {
+            total -= distance.poll();
+            cur++;
         }
 
-        System.out.println(result);
+        System.out.println(total);
     }
 }
