@@ -1,49 +1,32 @@
-
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
+import java.util.stream.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        String str = br.readLine();
-        Deque<Character> dq = new ArrayDeque<>();
+        String input = br.readLine();
         StringBuilder sb = new StringBuilder();
 
-        for(int i = 0 ; i < str.length(); i++) {
-            char cur = str.charAt(i);
-
-            // 알파벳 대문자
-            if (Character.isAlphabetic(cur)) {
-                sb.append(cur);
-                continue;
-            }
-
-            // 괄호
-            if(cur == '('){
-                dq.offerLast(cur);
-            } else if (cur == ')') {
-                // 여는 괄호 나올 때까지
-                while (!dq.isEmpty() && dq.peekLast() != '(') {
+        Deque<Character> dq = new ArrayDeque<>();
+        for(char c : input.toCharArray()) {
+            // 연산자 아닐 경우
+            if('A' <= c && c <= 'Z') {
+                sb.append(c);
+            } else if (c == '(') {
+                dq.offer(c);
+            } else if (c == ')') {
+                while(!dq.isEmpty() && dq.peekLast() != '(') {
                     sb.append(dq.pollLast());
                 }
-                if(!dq.isEmpty() && dq.peekLast() == '(') {
-                    dq.pollLast();
-                }
-            }
-            else{
-                // 연산자
-                int p = getOperationPriority(cur);
-                while (!dq.isEmpty() && getOperationPriority(dq.peekLast()) >= p) {
+                dq.pollLast();
+            }else {
+                while(!dq.isEmpty() && getPriority(c) <= getPriority(dq.peekLast())) {
                     sb.append(dq.pollLast());
                 }
-                dq.offerLast(cur);
+                dq.offer(c);
             }
         }
 
@@ -55,16 +38,9 @@ public class Main {
 
     }
 
-    static int getOperationPriority(char c) {
-        switch (c) {
-            case '+':
-                case '-':
-                    return 1;
-                    case '*':
-                        case '/':
-                            return 2;
-                            default:
-                                return 0;
-        }
+    static int getPriority(char c) {
+        if(c == '+' || c == '-') return 1;
+        if(c == '*' || c == '/') return 2;
+        return 0;
     }
 }
