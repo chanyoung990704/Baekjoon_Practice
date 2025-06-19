@@ -14,18 +14,14 @@ public class Main {
         Stack<Character> stack = new Stack<>();
         for (char c : str.toCharArray()) {
             stack.push(c);
-            
-            // 스택 크기가 패턴 길이보다 크거나 같을 때만 확인
             if (stack.size() >= p.length()) {
-                boolean needPop = true;  // ← 조건문 안으로 이동
-                
+                boolean needPop = true;
                 for(int i = 0 ; i < p.length() ; i++){
                     if(stack.get(stack.size() - p.length() + i) != p.charAt(i)){
                         needPop = false;
-                        break;  // ← 조기 종료로 성능 개선
+                        break;
                     }
                 }
-                
                 if(needPop){
                     for(int i = 0 ; i < p.length() ; i++){
                         stack.pop();
@@ -36,12 +32,12 @@ public class Main {
 
         if(stack.isEmpty()) {
             System.out.println("FRULA");
-        } else {
-            StringBuilder result = new StringBuilder();
-            for(char ch : stack) {
-                result.append(ch);
+        }else {
+            StringBuilder sb = new StringBuilder();
+            for(char c : stack){
+                sb.append(c);
             }
-            System.out.println(result.toString());
+            System.out.println(sb);
         }
     }
 }
