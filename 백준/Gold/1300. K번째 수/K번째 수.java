@@ -1,38 +1,33 @@
-
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         int N = Integer.parseInt(br.readLine());
-        long k = Long.parseLong(br.readLine());
+        int k =  Integer.parseInt(br.readLine());
 
-        long lo = 1;
-        long hi = (long) N * N;
-        long ret = -1; // 결과값을 저장할 변수
+        int lo = 0;
+        int hi = 1000000000;
+        int res = 0;
 
         while (lo <= hi) {
-            long mid = lo + (hi - lo) / 2;
-
-            // mid보다 작거나 같은 값의 개수를 계산
-            long countLessOrEqual = 0;
+            int mid =  lo + (hi - lo) / 2;
+            int cnt = 0;
+            // logic
             for (int i = 1; i <= N; i++) {
-                countLessOrEqual += Math.min(N, mid / i);
+                cnt += Math.min(N, mid / i);
             }
 
-            if (countLessOrEqual >= k) {
-                // mid가 조건을 만족하면 ret에 저장
-                ret = mid;
-                hi = mid - 1; // 더 작은 값을 탐색
-            } else {
-                lo = mid + 1; // 더 큰 값을 탐색
+            if (cnt >= k) {
+                res = mid;
+                hi = mid - 1;
+            }else{
+                lo = mid + 1;
             }
         }
 
-        System.out.println(ret); // 최종적으로 k번째 값 출력
+        System.out.println(res);
     }
 }
