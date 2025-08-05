@@ -1,7 +1,6 @@
+import java.io.*;
 import java.util.*;
 import java.util.stream.*;
-import java.io.*;
-import java.util.regex.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -9,25 +8,28 @@ public class Main {
 
         int N = Integer.valueOf(br.readLine());
 
-        List<Integer> list = Arrays.stream(br.readLine().split(" "))
-        .map(Integer::valueOf).collect(Collectors.toList());
+        int[] nums = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::valueOf)
+                .toArray();
 
-        int[] dp = new int[list.size()];
+        int[] len = new int[nums.length];
+        int[] sum = Arrays.copyOf(nums, nums.length);
 
-        for(int i = 0 ; i < list.size() ; i++){
-            dp[i] = list.get(i);
-        }
+        Arrays.fill(len, 1);
 
-        int max = dp[0];
-        for(int i = 1 ; i < list.size() ; i++){
-            for(int j = 0 ; j < i ; j++) {
-                if(list.get(i) > list.get(j)){
-                    dp[i] = Math.max(dp[i], dp[j] + list.get(i));
+
+        for(int i = 1 ; i < nums.length ; i++){
+            int rear = nums[i];
+            for (int j = 0; j < i; j++) {
+                int front = nums[j];
+                if(front < rear){
+                    len[i] = Math.max(len[i], len[j] + 1);
+                    sum[i] = Math.max(sum[i], sum[j] + nums[i]);
                 }
             }
-            max = Math.max(max, dp[i]);
         }
 
+        int max = Arrays.stream(sum).max().getAsInt();
         System.out.println(max);
+
     }
 }
