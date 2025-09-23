@@ -1,10 +1,5 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -12,47 +7,42 @@ public class Main {
 
         int N = Integer.valueOf(br.readLine());
 
-        TreeMap<Integer, TreeSet<Integer>> map = new TreeMap<>(); // 난이도, 문제들
-        Map<Integer, Integer> map2 = new HashMap<>(); // 문제, 난이도
+        TreeMap<Integer, TreeSet<Integer>> recommends = new TreeMap<>();
+        Map<Integer, Integer> nums = new HashMap<>();
+
         for (int i = 0; i < N; i++) {
             int[] input = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-            int p = input[0];
-            int d = input[1];
+            int P = input[0];
+            int L =  input[1];
 
-            map.computeIfAbsent(d, k -> new TreeSet<>()).add(p);
-            map2.put(p, d);
+            recommends.computeIfAbsent(L, k -> new TreeSet<>()).add(P);
+            nums.put(P, L);
         }
 
-        int M = Integer.valueOf(br.readLine());
-        for(int i = 0; i < M; i++) {
+        int M =  Integer.valueOf(br.readLine());
+        for (int i = 0; i < M; i++) {
             String[] input = br.readLine().split(" ");
             if (input[0].equals("add")) {
-                int p = Integer.valueOf(input[1]);
-                int d = Integer.valueOf(input[2]);
-                map.computeIfAbsent(d, k -> new TreeSet<>()).add(p);
-                map2.put(p, d);
+                int P = Integer.parseInt(input[1]);
+                int L =  Integer.parseInt(input[2]);
+
+                recommends.computeIfAbsent(L, k -> new TreeSet<>()).add(P);
+                nums.put(P, L);
             } else if (input[0].equals("recommend")) {
-                int op = Integer.valueOf(input[1]);
-                if (op == 1) {
-                    System.out.println(map.lastEntry().getValue().last());
-                }else{
-                    System.out.println(map.firstEntry().getValue().first());
+                int x = Integer.parseInt(input[1]);
+                if (x == 1) {
+                    System.out.println(recommends.get(recommends.lastKey()).last());
+                } else if (x == -1) {
+                    System.out.println(recommends.get(recommends.firstKey()).first());
                 }
             } else if (input[0].equals("solved")) {
-                // 문제 번호 P
-                int p = Integer.valueOf(input[1]);
-
-                // 난이도 찾기 & 제거
-                Integer d = map2.get(p);
-                map2.remove(p);
-
-                // 트리맵에서 제거
-                map.get(d).remove(p);
-                if (map.get(d).isEmpty()) {
-                    map.remove(d);
+                int P = Integer.parseInt(input[1]);
+                int level = nums.get(P);
+                recommends.get(level).remove(P);
+                if (recommends.get(level).isEmpty()) {
+                    recommends.remove(level);
                 }
             }
         }
-
     }
 }
