@@ -1,37 +1,36 @@
 import java.io.*;
-import java.math.BigInteger;
 import java.util.*;
-import java.util.stream.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public static void main(String[] args) throws IOException {
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int N = Integer.parseInt(st.nextToken()), M = Integer.parseInt(st.nextToken());
 
-        List<Integer> NM = Arrays.stream(br.readLine().split(" "))
-        .map(Integer::valueOf).collect(Collectors.toList());
+        st = new StringTokenizer(br.readLine());
+        int[] nums = new int[N];
+        for(int i = 0 ; i < N ; i++){
+            nums[i] = Integer.parseInt(st.nextToken());
+        }
 
-        int N = NM.get(0);
-        int M = NM.get(1);
+        // 누적합
+        int[] prefixSum = new int[N+1];
+        Arrays.fill(prefixSum, 0);
+        for(int i = 0 ; i < N; i++){
+            prefixSum[i+1] = prefixSum[i] + nums[i];
+        }
 
-        List<Integer> nums = Arrays.stream(br.readLine().split(" "))
-        .map(Integer::valueOf).collect(Collectors.toList());
+        // 쿼리
+        while(M-- > 0){
+            st = new StringTokenizer(br.readLine());
+            int l = Integer.parseInt(st.nextToken());
+            int r = Integer.parseInt(st.nextToken());
 
-        List<Integer> sums = new ArrayList<>();
-        sums.add(0);
-        for(int n : nums) sums.add(n + sums.get(sums.size() - 1));
-
-        for(int i = 0 ; i < M ; i++) {
-            List<Integer> ij = Arrays.stream(br.readLine().split(" "))
-            .map(Integer::valueOf).collect(Collectors.toList());
-            
-            int curI = ij.get(0);
-            int curJ = ij.get(1);
-
-            System.out.println(sums.get(curJ) - sums.get(curI - 1));
+            System.out.println(prefixSum[r] - prefixSum[l-1]);
         }
 
 
-        br.close();
 
-    }
+
+    } 
 }
