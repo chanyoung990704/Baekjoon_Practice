@@ -1,37 +1,38 @@
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int N = Integer.parseInt(st.nextToken());
+        int M = Integer.parseInt(st.nextToken());
 
-        int[] NM = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-        int N = NM[0];
-        int M = NM[1];
-
-        List<Integer> arr = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
-
-        List<Long> prefixSum = new ArrayList<>();
-        prefixSum.add(0L);
-        for (int i = 0; i < N; i++) {
-            prefixSum.add(prefixSum.get(i) + arr.get(i));
+        int[] nums = new int[N];
+        st = new StringTokenizer(br.readLine());
+        for(int i = 0 ; i < N ; i++){
+            nums[i] = Integer.parseInt(st.nextToken());
         }
 
-        List<Long> modPrefixSum = prefixSum.stream().map(i -> ((i % M) + M) % M).collect(Collectors.toList());
-
-        Map<Long, Integer> map = new HashMap<>();
-        for(Long m : modPrefixSum) {
-            map.put(m, map.getOrDefault(m, 0) + 1);
+        // 누적합
+        long[] prefixSum = new long[N+1];
+        prefixSum[0] = 0L;
+        for(int i = 0 ; i < N ; i++){
+            prefixSum[i+1] = prefixSum[i] + nums[i];
         }
 
-        long res = 0;
-        for(long v : map.values()) {
-            if(v > 1){
-                res += v * (v - 1) / 2;
-            }
+        // 누적합 배열 각각 모듈러 구해서 카운팅
+        long[] count = new long[M];
+        Arrays.fill(count, 0L);
+        count[0] = 1;
+
+        long ans = 0;
+        for(int i = 1 ; i <= N ; i++){
+            int m = (int)(prefixSum[i] % M);
+            ans += count[m];
+            count[m] += 1;
         }
 
-        System.out.println(res);
-    }
+        System.out.println(ans);
+    } 
 }
