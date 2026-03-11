@@ -1,59 +1,63 @@
 import java.io.*;
 import java.util.*;
-import java.util.stream.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringBuilder sb = new StringBuilder();
 
-    public static void main(String[] args) throws Exception {
+    static int N;
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static int max = 4000000;
+    static boolean isPrime[] = new boolean[max + 1];
+    static List<Integer> nums = new ArrayList<>();
 
-        int N = Integer.valueOf(br.readLine());
+    static int ret = 0;
 
-        // 소수 구하기
-        boolean[] isPrime = new boolean[N+1];
-        Arrays.fill(isPrime, true);
+    public static void main(String[] args) throws IOException {
 
-        isPrime[0] = false;
-        isPrime[1] = false;
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
 
-        for (int i = 2; i <= Math.sqrt(N); i++) {
-            if(isPrime[i]){
-                for(int j = i * i ; j <= N ; j += i){
-                    isPrime[j] = false;
-                }
+        makePrimeArr();
+        // 소수인 것들 다 담기.
+        for (int i = 0; i <= max; i++) {
+            if (isPrime[i]) {
+                nums.add(i);
             }
         }
 
-        List<Integer> primes = new ArrayList<>();
-        for (int i = 2; i <= N; i++) {
-            if(isPrime[i]){
-                primes.add(i);
-            }
-        }
+        // 투포인터 구간 길이
+        int lo = 0, hi = 0;
+        int total = 0;
+        while (hi < nums.size()) {
+            total += nums.get(hi);
 
-        int lo = 0;
-        int hi = 0;
-        int sum = 0;
-        int cnt = 0;
-
-        while (hi < primes.size()) {
-            sum += primes.get(hi);
-
-            while (lo < primes.size() && sum >= N) {
-                if (sum == N) {
-                    cnt++;
+            while (lo <= hi && total >= N) {
+                if (total == N) {
+                    ret++;
                 }
-                sum -= primes.get(lo);
+                total -= nums.get(lo);
                 lo++;
             }
 
             hi++;
         }
 
+        System.out.println(ret);
+    }
 
-        System.out.println(cnt);
+    private static void makePrimeArr() {
+        Arrays.fill(isPrime, true);
+        // 0은 1은 소수 아님
+        isPrime[0] = isPrime[1] = false;
 
-
+        for (int i = 0; i <= Math.sqrt(max); i++) {
+            // 현재 소수면 갱신
+            if(isPrime[i]) {
+                for (int j = i * i; j <= max; j += i) {
+                    isPrime[j] = false;
+                }
+            }
+        }
     }
 }
