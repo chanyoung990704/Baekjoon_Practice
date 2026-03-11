@@ -1,42 +1,39 @@
 import java.io.*;
 import java.util.*;
-import java.util.stream.*;
+import java.util.stream.Collectors;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringBuilder sb = new StringBuilder();
 
-    public static void main(String[] args) throws Exception {
+    static int N;
+    static int[] nums;
+    static int[] ret;
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public static void main(String[] args) throws IOException {
 
-        int N = Integer.parseInt(br.readLine());
-        List<Integer> list = Arrays.stream(br.readLine().split(" ")).map(Integer::parseInt).collect(Collectors.toList());
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        nums = Arrays.stream(br.readLine().split("\\s")).mapToInt(Integer::parseInt).toArray();
 
-        Deque<Integer> dq = new ArrayDeque<>();
-        int[] results = new int[N];
+        ret = new int[N];
+        Arrays.fill(ret, -1);
 
-        // 맨 뒤 초기화
-        dq.offerLast(list.get(list.size()-1));
-        results[N-1] = -1;
+        // 스택
+        Stack<int[]> stack = new Stack<>(); // 인덱스, 값
 
-        for(int i = N-2; i >= 0; i--){
-            // 현재 숫자
-            int cur = list.get(i);
-
-            while (!dq.isEmpty() && dq.peekLast() <= cur){
-                dq.pollLast();
+        // 전체 돌면서
+        for (int i = 0; i < nums.length; i++) {
+            int num = nums[i];
+            // 스택에서 뺄 경우가 생긴다면 즉 현재 값이 큰 값이라면
+            while (!stack.isEmpty() && stack.peek()[1] < num) {
+                // pop하고 저장
+                int[] del = stack.pop();
+                ret[del[0]] = num;
             }
-
-            // 결과 넣기
-            // 비었으면
-            if(dq.isEmpty()){
-                results[i] = -1;
-            }else{
-                results[i] = dq.peekLast();
-            }
-
-            dq.offerLast(cur);
+            stack.add(new int[]{i, num});
         }
 
-        System.out.println(Arrays.stream(results).mapToObj(String::valueOf).collect(Collectors.joining(" ")));
+        System.out.println(Arrays.stream(ret).mapToObj(String::valueOf).collect(Collectors.joining(" ")));
     }
 }
