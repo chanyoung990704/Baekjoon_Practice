@@ -1,40 +1,42 @@
-
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
-import java.util.stream.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringBuilder sb = new StringBuilder();
+
+    static int N,S;
+    static int[] nums;
+
+    static long ret = 987654321;
 
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        int[] NS = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-        int N = NS[0];
-        int S = NS[1];
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        S = Integer.parseInt(st.nextToken());
 
-        int[] nums = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+        nums = Arrays.stream(br.readLine().split("\\s")).mapToInt(Integer::parseInt).toArray();
 
-        int lo = 0;
-        int hi = 0;
+        // 슬라이딩 윈도우
+        int lo = 0, hi = 0;
+        long total = 0;
 
-        int sum = 0;
-        int len = Integer.MAX_VALUE;
-        while (hi < nums.length) {
-            sum += nums[hi];
+        while (hi < N) {
+            // 처음에 값을 넣는다
+            total += nums[hi];
 
-            while (sum >= S) {
-                if(len > hi - lo + 1){
-                    len = hi - lo + 1;
-                }
-                sum -= nums[lo++];
+            // S이상이면 lo를 줄인다
+            while (lo <= hi && total >= S) {
+                // 길이 갱신
+                ret = Math.min(ret, hi - lo + 1);
+                total -= nums[lo];
+                lo++;
             }
 
             hi++;
         }
 
-        System.out.println(len == Integer.MAX_VALUE ? 0 : len);
+        System.out.println(ret == 987654321 ? 0 : ret);
     }
 }
