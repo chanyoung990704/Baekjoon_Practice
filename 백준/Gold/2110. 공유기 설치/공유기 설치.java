@@ -1,53 +1,54 @@
 import java.io.*;
 import java.util.*;
-import java.util.stream.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringBuilder sb = new StringBuilder();
 
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static int N, C;
+    static int[] houses;
 
-        int[] input = Arrays.stream(br.readLine().split(" "))
-                            .mapToInt(Integer::parseInt)
-                            .toArray();
-        int N = input[0];   int C = input[1];
+    static int ret = 0;
 
-        List<Integer> list = new ArrayList<>();
-        for(int i = 0 ; i < N ; i++) list.add(Integer.valueOf(br.readLine()));
+    public static void main(String[] args) throws IOException {
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        list.sort(Comparator.naturalOrder());
+        N = Integer.parseInt(st.nextToken());
+        C = Integer.parseInt(st.nextToken());
+        houses = new int[N];
 
-        int lo = 1;
-        int hi = list.get(N - 1) - list.get(0);
-        int ret = -1;
+        for (int i = 0; i < N; i++) {
+            houses[i] = Integer.parseInt(br.readLine());
+        }
 
-        while(lo <= hi) {
-            int mid = (lo + hi) / 2;
-            if(isPossible(list, mid, C)){
-                ret = mid;
-                lo = mid + 1;
-            }else{
+        // 정렬
+        Arrays.sort(houses);
+
+        // 이분탐색
+        int lo = 1, hi = 1000000000;
+        while (lo <= hi) {
+            int mid = (hi - lo) / 2 + lo;
+            int cnt = 0;
+            int idx = 0;
+            // 첫번째 집부터 설치해서 개수 카운팅
+            for (int house : houses) {
+                if (idx <= house) {
+                    // 설치
+                    idx = house + mid;
+                    cnt++;
+                }
+            }
+
+
+            // C개보다 안되면 길이 줄이기
+            if (cnt < C) {
                 hi = mid - 1;
+            }else{
+                ret = Math.max(ret, mid);
+                lo = mid + 1;
             }
         }
 
         System.out.println(ret);
-        br.close();
     }
-
-    static boolean isPossible(List<Integer> list, int mid, int C){
-        int cur = list.get(0);
-        int cnt = 1;
-        for(int i = 0 ; i < list.size() ; i++){
-            int next = list.get(i);
-            if(next >= cur + mid){
-                cur = next;
-                cnt++;
-            }
-        }
-        if(cnt >= C) return true;
-        
-        return false;
-    }
-
 }
