@@ -1,55 +1,55 @@
-import java.util.*;
-import java.util.stream.*;
 import java.io.*;
-import java.util.regex.*;
+import java.util.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringBuilder sb = new StringBuilder();
+
+    static int N, K;
+    static List<int[]> items = new ArrayList<>();
+    static List<Integer> bags = new ArrayList<>();
+
+    static long ret = 0;
+
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        List<Integer> NK = Arrays.stream(br.readLine().split(" "))
-        .map(Integer::valueOf).collect(Collectors.toList());
+        N = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(st.nextToken());
 
-        int N = NK.get(0);
-        int K = NK.get(1);
-
-        List<List<Integer>> jewels = new ArrayList<>();
-        for(int i = 0 ; i < N ; i++) {
-            jewels.add(
-                Arrays.stream(br.readLine().split(" "))
-                .map(Integer::valueOf).collect(Collectors.toList()));
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            items.add(new int[]{Integer.parseInt(st.nextToken()),
+                    Integer.parseInt(st.nextToken())}); // 무게, 가격
         }
 
-        List<Integer> bags = new ArrayList<>();
-        for(int i = 0 ; i < K ; i++){
-            bags.add(Integer.valueOf(br.readLine()));
+        for (int i = 0; i < K; i++) {
+            bags.add(Integer.parseInt(br.readLine()));
         }
 
-        // 무게 오름차순 정렬
-        jewels.sort(Comparator.comparing((List<Integer> list) -> list.get(0)));
-        
-        // 가방 정렬
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt((int[] a) -> a[1]).reversed());
+
+        // 가방 무게 낮은 거부터
         bags.sort(Comparator.naturalOrder());
 
-        // 가치 최대 힙
-        PriorityQueue<Integer> pq = new PriorityQueue<>(Comparator.reverseOrder());
+        items.sort((a, b) -> {
+            if (a != b) return Integer.compare(a[0], b[0]);  // 무게 오름차순
+            return Integer.compare(b[1], a[1]);                    // 가격 내림차순
+        });
 
-        int jewelIdx = 0;
-        long total = 0;
-
-        for(int bag : bags){
-            
-            // 현재 가방에 들어갈 수 있는 보석 다 담기
-            while (jewelIdx < jewels.size() && jewels.get(jewelIdx).get(0) <= bag) {
-                pq.offer(jewels.get(jewelIdx).get(1));
-                jewelIdx++;
+        int idx = 0;
+        for (int bag : bags) {
+            // 현재 가방 무게보다 낮은 거 일단 다 넣기
+            while (idx < items.size() && items.get(idx)[0] <= bag) {
+                pq.add(items.get(idx++));
             }
 
-            if(!pq.isEmpty()){
-                total += pq.poll();
+            // 가장 가치 높은거 뽑기
+            if (!pq.isEmpty()) {
+                ret += pq.poll()[1];
             }
         }
-        System.out.println(total);
 
+        System.out.println(ret);
     }
 }
