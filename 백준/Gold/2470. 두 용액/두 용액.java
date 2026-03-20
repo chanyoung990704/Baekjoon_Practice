@@ -1,45 +1,46 @@
-
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
-import java.util.stream.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+    static int N;
+    static int[] arr;
+    static int[] ret = new int[2];
+    static long sum = Long.MAX_VALUE;
 
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        arr = new int[N];
 
-        int N = Integer.valueOf(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < N; i++) {
+            arr[i] = Integer.parseInt(st.nextToken());
+        }
 
-        int[] nums = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-        Arrays.sort(nums);
+        Arrays.sort(arr);
 
         int lo = 0;
-        int hi = nums.length - 1;
-
-        int rlo = 0;
-        int rhi = nums.length - 1;
+        int hi = N - 1;
 
         while (lo < hi) {
-            int total = nums[lo] + nums[hi];
-            int prev = nums[rlo] + nums[rhi];
+            long curSum = (long) arr[lo] + arr[hi];
 
-            if(Math.abs(total - 0) < Math.abs(prev - 0)) {
-                rlo = lo;
-                rhi = hi;
+            if (Math.abs(curSum) < sum) {
+                sum = Math.abs(curSum);
+                ret[0] = arr[lo];
+                ret[1] = arr[hi];
             }
 
-            if(total > 0){
-                hi--;
-            } else if (total < 0) {
+            if (curSum < 0) {
                 lo++;
-            }else{
+            } else if (curSum > 0) {
+                hi--;
+            } else {
                 break;
             }
         }
 
-        System.out.println(nums[rlo] + " " + nums[rhi]);
+        System.out.println(ret[0] + " " + ret[1]);
     }
 }
