@@ -1,45 +1,52 @@
-import java.util.*;
-import java.util.stream.*;
 import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringBuilder sb = new StringBuilder();
+
+    static int N, L;
+    static int[][] idx;
+
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        List<Integer> NL = Arrays.stream(br.readLine().split(" "))
-        .map(Integer::valueOf).collect(Collectors.toList());
+        N = Integer.parseInt(st.nextToken());
+        L = Integer.parseInt(st.nextToken());
 
-        int N = NL.get(0);
-        int L = NL.get(1);
+        idx = new int[N][2];
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
 
-
-        List<List<Integer>> list = new ArrayList<>();
-        for(int i = 0 ; i < N ; i++){
-            list.add(Arrays.stream(br.readLine().split(" "))
-            .map(Integer::valueOf).collect(Collectors.toList()));
+            idx[i][0] = start;
+            idx[i][1] = end;
         }
 
-        list.sort(Comparator.comparing((List<Integer> cur) -> cur.get(0)));
+        Arrays.sort(idx, (a, b) -> a[0] - b[0]);
 
-        int prev = 0;
-        int cnt = 0;
-        while (!list.isEmpty()) {
-            List<Integer> cur = list.get(0);
+        long lastIdx = 0;
+        long total = 0;
 
-            // 새로 기준점 만들어야 하는 경우
-            if(cur.get(0) > prev){
-                prev = cur.get(0);
+        for (int[] i : idx) {
+            int start = i[0], end = i[1];
+
+            // 널빤지의 끝보다 시작지점이 더 멀리 있으면
+            if (lastIdx < start) {
+                lastIdx = start;
             }
 
-            // 널빤지 최대한 깔기
-            while (prev < cur.get(1)) {
-                prev += L;
-                cnt++;
+            // lastIdx부터 덮기
+            if (lastIdx < end) {
+                long cnt = (end - lastIdx + L - 1) / L;
+                lastIdx += cnt * L;
+                total += cnt;
             }
-
-            list.remove(0);
         }
 
-        System.out.println(cnt);
+        System.out.println(total);
     }
 }
