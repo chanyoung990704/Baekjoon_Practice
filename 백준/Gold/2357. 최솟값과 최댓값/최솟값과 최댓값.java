@@ -2,87 +2,90 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringBuilder sb = new StringBuilder();
 
-    static int[] minTree;
-    static int[] maxTree;
+    static int N,M;
+
+    static class Tree{
+        long[] tree_min, tree_max;
+
+        Tree(long[] arr) {
+            int len = arr.length;
+            tree_max = new long[len * 4];
+            tree_min = new long[len * 4];
+            build(arr, 1, 0, len - 1);
+        }
+
+        public void build(long[] arr, int node, int start, int end) {
+            // basecase
+            if (start == end) {
+                tree_max[node] = arr[start];
+                tree_min[node] = arr[start];
+                return;
+            }
+
+            int mid = (start + end) / 2;
+            build(arr, node * 2, start, mid);
+            build(arr, node * 2 + 1, mid + 1, end);
+
+            // 최대, 최소
+            tree_min[node] = Math.min(tree_min[node * 2], tree_min[node * 2 + 1]);
+            tree_max[node] = Math.max(tree_max[node * 2], tree_max[node * 2 + 1]);
+        }
+
+        public long queryMAX(int node, int start, int end, int left, int right) {
+            // 영역 밖
+            if (end < left || right < start) {
+                return Long.MIN_VALUE;
+            }
+
+            // 쿼리 범위 안
+            if (left <= start && end <= right) {
+                return tree_max[node];
+            }
+
+            int mid = (start + end) / 2;
+            return Math.max(queryMAX(node * 2, start, mid, left, right), queryMAX(node * 2 + 1, mid + 1, end, left, right));
+        }
+
+        public long queryMIN(int node, int start, int end, int left, int right) {
+            // 영역 밖
+            if (end < left || right < start) {
+                return Long.MAX_VALUE;
+            }
+
+            // 쿼리 범위 안
+            if (left <= start && end <= right) {
+                return tree_min[node];
+            }
+
+            int mid = (start + end) / 2;
+            return Math.min(queryMIN(node * 2, start, mid, left, right), queryMIN(node * 2 + 1, mid + 1, end, left, right));
+        }
+    }
 
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        int[] NM = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-        int N = NM[0];
-        int M = NM[1];
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
 
-        minTree = new int[4 * N];
-        maxTree = new int[4 * N];
-        int[] arr = new int[N];
-
-
+        long[] arr = new long[N];
         for (int i = 0; i < N; i++) {
-            arr[i] = Integer.parseInt(br.readLine());
+            arr[i] = Long.parseLong(br.readLine());
         }
 
-        List<int[]> sub = new ArrayList<>();
+        Tree tree = new Tree(arr);
+
         for (int i = 0; i < M; i++) {
-            sub.add(Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray());
-        }
+            st = new StringTokenizer(br.readLine());
+            int left = Integer.parseInt(st.nextToken());
+            int right = Integer.parseInt(st.nextToken());
 
-        initMinTree(arr, 1, 0, N - 1);
-        initMaxTree(arr, 1, 0, N - 1);
-
-        StringBuilder sb = new StringBuilder();
-
-        for (int[] s : sub) {
-            int left = s[0];
-            int right = s[1];
-            sb.append(minQuery(1, 0, N - 1, left - 1, right - 1) + " " + maxQuery(1, 0, N - 1, left - 1, right - 1) + "\n");
+            sb.append(tree.queryMIN(1, 0, N - 1, left-1, right-1)).append(" ").append(tree.queryMAX(1, 0, N - 1, left-1, right-1)).append("\n");
         }
 
         System.out.println(sb);
-
     }
-
-    private static int initMinTree(int[] arr, int idx, int lo, int hi) {
-        if(lo == hi){
-            return minTree[idx] = arr[lo];
-        }
-
-        int mid = (lo + hi) / 2;
-        int min = Math.min(initMinTree(arr, idx * 2, lo, mid), initMinTree(arr, idx * 2 + 1, mid + 1, hi));
-        return minTree[idx] = min;
-    }
-
-    private static int minQuery(int idx, int lo, int hi, int left, int right) {
-        if (right < lo || hi < left) {
-            return Integer.MAX_VALUE;
-        }
-
-        if (left <= lo && hi <= right) {
-            return minTree[idx];
-        }
-
-        int mid = (lo + hi) / 2;
-        return Math.min(minQuery(idx * 2, lo, mid, left, right), minQuery(idx * 2 + 1, mid + 1, hi, left, right));
-    }
-
-    private static int initMaxTree(int[] arr, int idx, int lo, int hi) {
-        if(lo == hi){
-            return maxTree[idx] = arr[lo];
-        }
-        int mid = (lo + hi) / 2;
-        int max = Math.max(initMaxTree(arr, idx * 2, lo, mid), initMaxTree(arr, idx * 2 + 1, mid + 1, hi));
-        return maxTree[idx] = max;
-    }
-
-    private static int maxQuery(int idx, int lo, int hi, int left, int right) {
-        if (right < lo || hi < left) {
-            return Integer.MIN_VALUE;
-        }
-        if (left <= lo && hi <= right) {
-            return maxTree[idx];
-        }
-        int mid = (lo + hi) / 2;
-        return Math.max(maxQuery(idx * 2, lo, mid, left, right), maxQuery(idx * 2 + 1, mid + 1, hi, left, right));
-    }
-
 }
