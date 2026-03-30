@@ -1,49 +1,54 @@
 import java.util.*;
 
 class Solution {
-    class Point {
-        int x, y, cnt;
-        Point(int x, int y, int cnt) {
-            this.x = x;
-            this.y = y;
-            this.cnt = cnt;
-        }
-    }
+    int[][] maps;
     
-    int[] dy = {0, 0, 1, -1};
-    int[] dx = {1, -1, 0, 0};
-    int h, w;
+    int[] dy = new int[]{0,0,1,-1};
+    int[] dx = new int[]{1,-1,0,0};
     
+    int sy, sx, ey, ex;
+    
+    int answer = 987654321;
     public int solution(int[][] maps) {
-        h = maps.length;
-        w = maps[0].length;
+        this.maps = maps;
         
-        boolean[][] visited = new boolean[h][w];
-        Deque<Point> deque = new ArrayDeque<>();
-        deque.offerLast(new Point(0, 0, 1));
-        visited[0][0] = true;
+        // BFS
+        Queue<int[]> q = new ArrayDeque<>();
+
+        sy = sx = 0;
+        ey = maps.length-1;
+        ex = maps[0].length-1;
         
-        while (!deque.isEmpty()) {
-            Point cur = deque.pollFirst();
+        boolean[][] visited = new boolean[maps.length][maps[0].length];
+        
+        q.add(new int[]{sy,sx, 1});
+        visited[sy][sx]=true;
+        
+        while(!q.isEmpty()){
+            int[] cur = q.poll();
+            int y = cur[0];
+            int x = cur[1];
+            int cnt = cur[2];
             
-            if (cur.y == h - 1 && cur.x == w - 1) {
-                return cur.cnt;
+            if(y == ey && x == ex){
+                answer = Math.min(answer, cnt);
             }
             
-            for (int i = 0; i < 4; i++) {
-                int ny = cur.y + dy[i];
-                int nx = cur.x + dx[i];
-                if (isPossible(ny, nx) && maps[ny][nx] == 1 && !visited[ny][nx]) {
+            for(int d = 0 ; d < 4 ; d++){
+                int ny = y + dy[d];
+                int nx = x + dx[d];
+                if(range(ny,nx) && maps[ny][nx] == 1 && !visited[ny][nx]){
                     visited[ny][nx] = true;
-                    deque.offerLast(new Point(nx, ny, cur.cnt + 1));
+                    q.add(new int[]{ny,nx,cnt+1});
                 }
             }
         }
         
-        return -1;
+        
+        return answer == 987654321 ? -1 : answer;
     }
     
-    boolean isPossible(int y, int x) {
-        return y >= 0 && y < h && x >= 0 && x < w;
+    boolean range(int y, int x){
+        return y >= 0 && y < maps.length && x >= 0 && x < maps[0].length;
     }
 }
