@@ -1,90 +1,90 @@
 import java.io.*;
 import java.util.*;
-import java.util.stream.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringBuilder sb = new StringBuilder();
 
-    static class Snake{
-        int y;
-        int x;
-        Snake(int y, int x){
-            this.y = y;
-            this.x = x;
-        }
-    }
-    
-    static int[] dy = new int[]{0,1,0,-1};
-    static int[] dx = new int[]{1,0,-1,0};
+    static int M, N;
 
-    static int dir = 0;
+    static int[][] arr;
+
+    static int[] dy = new int[]{-1, 0, 1, 0};
+    static int[] dx = new int[]{0, 1, 0, -1};
+
+    static int y, x,dir, len;
+    static int time = 0;
+
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        int N = Integer.valueOf(br.readLine());
-        int K = Integer.valueOf(br.readLine());
+        N = M = Integer.parseInt(st.nextToken());
+        arr = new int[N][M];
 
-        List<List<Integer>> gameMap = new ArrayList<>();
-        for(int i = 0 ; i< N ; i++) gameMap.add(new ArrayList<>(Collections.nCopies(N, 0)));
-
-        for(int i = 0 ; i < K ; i++){
-            String[] yx = br.readLine().split(" ");
-            int y = Integer.valueOf(yx[0]);
-            int x = Integer.valueOf(yx[1]);
-            gameMap.get(y - 1).set(x - 1, 1);
+        int K = Integer.parseInt(br.readLine());
+        // 사과 위치
+        for (int i = 0; i < K; i++) {
+            st = new StringTokenizer(br.readLine());
+            arr[Integer.parseInt(st.nextToken())-1][Integer.parseInt(st.nextToken())-1] = 2;
         }
 
-        int L = Integer.valueOf(br.readLine());
-        Map<Integer, String> timeMap = new HashMap<>();
-        for(int i = 0 ; i < L ; i++){
-            String[] timeDir = br.readLine().split(" ");
-            int t = Integer.valueOf(timeDir[0]);
-            timeMap.put(t, timeDir[1]);
+        // 뱀의 방향 변환 정보
+        int L = Integer.parseInt(br.readLine());
+        Queue<int[]> q = new ArrayDeque<>();
+        for (int i = 0; i < L; i++) {
+            st = new StringTokenizer(br.readLine());
+            int t = Integer.parseInt(st.nextToken());
+            String d = st.nextToken();
+
+            if (d.equals("D")) {
+                q.offer(new int[]{t, 0});
+            }
+            if (d.equals("L")) {
+                q.offer(new int[]{t, 1});
+            }
         }
 
-        // 게임 시작
-        int gameTime = 0;
-        dir = 0;
-        Deque<Snake> snakes = new ArrayDeque<>();
-        snakes.offer(new Snake(0, 0));
+        y = x = 0;
+        dir = 1;
+        len = 1;
+
+        Deque<int[]> snake = new ArrayDeque<>();
+        snake.offerFirst(new int[]{0, 0});
+        arr[0][0] = 1; // 뱀의 몸은 1, 사과는 2
 
         while (true) {
-            // 이동
-            Snake cur = snakes.peekLast();
-            int ny = cur.y + dy[dir];
-            int nx = cur.x + dx[dir];
+            time++;
 
-            // 이동할 게 범위 밖이면
-            if(ny < 0 || ny >= N || nx < 0 || nx >= N) {
-                gameTime++;
-                break;
-            }else if(snakes.stream().anyMatch(s -> s.y == ny && s.x == nx)){ // 몸통 부딪히면
-                gameTime++;
+            // 몸길이 늘린다
+            int ny = y + dy[dir], nx = x + dx[dir];
+            if (!range(ny, nx) || arr[ny][nx] == 1) {
                 break;
             }
-
-            if(gameMap.get(ny).get(nx) != 1){
-                snakes.pollFirst();
-            }else{
-                gameMap.get(ny).set(nx, 0);
+            // 이동한 칸이 사과인지
+            if (arr[ny][nx] != 2) { // 사과 없다면
+                int[] tail = snake.pollLast();
+                arr[tail[0]][tail[1]] = 0;
             }
-            snakes.offerLast(new Snake(ny, nx));
 
-            // 시간 증가 및 방향 전환
-            gameTime++;
-            if(timeMap.containsKey(gameTime)){
-                changeDir(timeMap.get(gameTime));
+            // 머리 이동
+            arr[ny][nx] = 1;
+            snake.offerFirst(new int[]{ny, nx});
+            y = ny;
+            x = nx;
+
+            // 방향 전환
+            if (!q.isEmpty() && q.peek()[0] == time) {
+                int[] turn = q.poll();
+                if (turn[1] == 0) dir = (dir + 1) % 4; // 시계
+                else dir = (dir + 3) % 4;             // 반시계
             }
         }
 
-        System.out.println(gameTime);
+        System.out.println(time);
+
     }
 
-    static void changeDir(String d){
-        if(d.equals("D")) dir++;
-        if(d.equals("L")) dir--;
-
-        if(dir == 4) dir = 0;
-        if(dir == -1) dir  = 3;
+    private static boolean range(int y, int x) {
+        return y >= 0 && y < N && x >= 0 && x < M;
     }
-    
 }
