@@ -1,50 +1,42 @@
 import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringBuilder sb = new StringBuilder();
 
-    static class MeetingRoom {
-        int start;
-        int end;
+    static int N;
 
-        public MeetingRoom(int start, int end) {
-            this.start = start;
-            this.end = end;
-        }
-    }
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public static void main(String[] args) throws IOException {
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        int N = Integer.parseInt(br.readLine());
-        List<MeetingRoom> rooms = new ArrayList<>();
+        N = Integer.parseInt(st.nextToken());
 
-        for (int i = 0; i < N; i++) {
-            int[] se = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-            rooms.add(new MeetingRoom(se[0], se[1]));
+        List<int[]> schedule = new ArrayList<>();
+        while (N-- > 0) {
+            st = new StringTokenizer(br.readLine());
+            schedule.add(new int[]{Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())});
         }
 
-        rooms.sort(Comparator.comparing((MeetingRoom r) -> r.start)
-                .thenComparing(r -> r.end));
+        // 최소의 강의실 사용
+        // 시작점 정렬
+        schedule.sort(Comparator.comparing((int[] a) -> a[0])
+                .thenComparing(a -> a[1]));
 
-        PriorityQueue<MeetingRoom> pq = new PriorityQueue<>(Comparator.comparing((MeetingRoom r) -> r.end));
-
-        for (int i = 0; i < rooms.size(); i++) {
-            if (i == 0) {
-                pq.offer(rooms.get(i));
-                continue;
-            }
-
-            MeetingRoom room = rooms.get(i);
-            if (room.start >= pq.peek().end) {
+        int cnt = 0;
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        for (int[] s : schedule) {
+            int start = s[0], end = s[1];
+            // 이미 시작된 스케줄이 끝난 경우
+            if (!pq.isEmpty() && pq.peek() <= start) {
                 pq.poll();
             }
-            pq.add(room);
+
+            pq.offer(end);
+            cnt = Math.max(cnt, pq.size());
         }
 
-        System.out.println(pq.size());
+        System.out.println(cnt);
 
     }
 }
