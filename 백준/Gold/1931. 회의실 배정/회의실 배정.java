@@ -1,45 +1,36 @@
-
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
-import java.util.stream.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringBuilder sb = new StringBuilder();
+
+    static int N;
+
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        int N = Integer.valueOf(br.readLine());
+        N = Integer.parseInt(st.nextToken());
 
-        int[][] times = new int[N][2];
-        for (int i = 0; i < N; i++) {
-            times[i] = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+        List<int[]> schedule = new ArrayList<>();
+        while (N-- > 0) {
+            st = new StringTokenizer(br.readLine());
+            schedule.add(new int[]{Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())});
         }
 
-        // 일찍 끝나는 순서로 정렬
-        Arrays.sort(times, (a, b) ->{
-            if (a[1] != b[1]) {
-                return a[1] - b[1];
-            }
-            return a[0] - b[0];
-        });
+        // 종료시점 정렬
+        schedule.sort(Comparator.comparing((int[] a) -> a[1])
+                .thenComparing(a -> a[0]));
 
-        int start = times[0][0];
-        int end = times[0][1];
-        int cnt = 1;
-
-        for(int i = 1; i < N; i++) {
-            int nextStart = times[i][0];
-            int nextEnd = times[i][1];
-
-            if (nextStart >= end) {
-                cnt++;
-                start = nextStart;
-                end = nextEnd;
+        int lastTime = Integer.MIN_VALUE;
+        int answer = 0;
+        for (int[] cur : schedule) {
+            if (cur[0] >= lastTime) {
+                answer++;
+                lastTime = cur[1];
             }
         }
 
-        System.out.println(cnt);
+        System.out.println(answer);
     }
 }
