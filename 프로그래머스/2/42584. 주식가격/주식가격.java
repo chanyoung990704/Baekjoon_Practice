@@ -1,26 +1,34 @@
 import java.util.*;
 
 class Solution {
-    public int[] solution(int[] prices) {    
-        int n = prices.length;
-        int[] answer = new int[n];
+    public int[] solution(int[] prices) {
         
-        Deque<Integer> dq = new ArrayDeque<>();
         
-        for(int i = 0 ; i < n ; i++){
-            // 떨어지는 순간
-            while(!dq.isEmpty() && prices[i] < prices[dq.peekLast()]){
-                answer[dq.peekLast()] = i - dq.peekLast();
-                dq.pollLast();
+        Stack<int[]> stack = new Stack<>();
+        
+        int[] answer = new int[prices.length];
+        int time = 0;
+        
+        for(int i = 0 ; i < prices.length ; i++){
+            time++;
+            
+            // 현재
+            int price = prices[i];
+            // 감소한 거 뺴기
+            while(!stack.isEmpty() && prices[stack.peek()[0]] > price){
+                int[] s = stack.pop();
+                answer[s[0]] = time - s[1];
             }
-            dq.offerLast(i);
+            
+            stack.push(new int[]{i, time});
+            
         }
         
-        while(!dq.isEmpty()){
-            int idx = dq.pollLast();
-            answer[idx] = n - 1 - idx;
+        // 남아있는 거 정리
+        while(!stack.isEmpty()){
+            int[] s = stack.pop();
+            answer[s[0]] = time - s[1];
         }
-        
         
         return answer;
     }
