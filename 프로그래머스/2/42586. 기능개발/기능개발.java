@@ -1,40 +1,35 @@
 import java.util.*;
-import java.util.stream.*;
-
 class Solution {
     public int[] solution(int[] progresses, int[] speeds) {
         
-        List<Integer> res = new ArrayList<>();
-        Deque<Integer> dq = new ArrayDeque<>();
-        int n = progresses.length;
+        int len = progresses.length;
+        Queue<Integer> q = new ArrayDeque<>();
+        List<Integer> lis = new ArrayList<>();
         
-        // 배포 가능 시간으로 변경
-        int[] time = IntStream.range(0, n)
-            .map(i -> {
-                int remain = 100 - progresses[i];
-                int s = speeds[i];
-                return (remain + s - 1) / s;
-            }).toArray();
         
-        // 로직
-        for(int i = 0 ; i < n ; i++){
-            // 배포 가능
-            if(!dq.isEmpty() && dq.peekFirst() < time[i]){
-                res.add(dq.size());
-                while(!dq.isEmpty()){
-                    dq.poll();
-                }
+        for(int i = 0 ; i < len ; i++){
+            int days = (100 - progresses[i] + speeds[i] - 1) / speeds[i];
+            q.add(days);
+        }
+        
+        
+        while(!q.isEmpty()){
+            int cur = q.poll();
+            int cnt = 1;
+            // 빨리 끝날 수 있는거 전부
+            while(!q.isEmpty() && q.peek() <= cur){
+                q.poll();
+                cnt++;
             }
-            dq.offerLast(time[i]);
-        }
-        
-        if(!dq.isEmpty()){
-            res.add(dq.size());
+            lis.add(cnt);
         }
         
         
-        return res.stream()
-            .mapToInt(Integer::valueOf)
-            .toArray();
+        int[] answer = new int[lis.size()];
+        for(int i = 0 ; i < answer.length ; i++){
+            answer[i] = lis.get(i);
+        }
+        
+        return answer;
     }
 }
