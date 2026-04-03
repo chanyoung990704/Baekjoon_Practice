@@ -1,33 +1,31 @@
 import java.util.*;
-import java.util.stream.*;
-class Solution {
-    public int solution(int[] scoville, int K) {
-        
-        PriorityQueue<Integer> pq = 
-            new PriorityQueue<>((a, b) -> a - b);
-        
-        // 초기화
-        Arrays.stream(scoville)
-            .forEach(i -> {
-                pq.offer(i);
-            });
-        
-        // 로직
-        int cnt = 0;
-        while(!pq.isEmpty() && pq.peek() < K) {
-            // 개수가 1개일 때
-            if(pq.size() == 1){
-                return -1;
-            }
-            
-            int first = pq.poll();
-            int second = pq.poll();
-            pq.offer(first + (second * 2));
-            cnt++;
-            
-        }
-                
-        return cnt;
 
+class Solution {
+    public int solution(int[] scoville, int k) {
+        
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        for(int s : scoville){
+            pq.offer(s);
+        }
+        
+        // 0번인 경우
+        int answer = 0;
+        if(pq.peek() >= k){
+            return answer;
+        }
+        
+        while(pq.size() > 1){
+            int p = pq.poll();
+            int p2 = pq.poll();
+            
+            answer++;
+            pq.offer(p + 2 * p2);
+            
+            if(pq.peek() >= k){
+                break;
+            }
+        }
+        
+        return pq.peek() >= k ? answer : -1;
     }
 }
