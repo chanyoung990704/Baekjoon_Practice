@@ -1,110 +1,54 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringTokenizer st;
+    static StringBuilder sb = new StringBuilder();
+
+    static int N;
+    static int[][] dist, dp;
+    static final int INF = 1000000000;
+
+    static int min = Integer.MAX_VALUE;
+
+
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        dist = new int[N][N];
+        dp = new int[N][1 << N];
 
-        int N = Integer.parseInt(br.readLine());
-
-        int[][] dist = new int[N][N];
         for (int i = 0; i < N; i++) {
-            dist[i] = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-        }
-
-        int S = 0;
-        int[][] memo = setup(S, N, dist);
-
-        solve(memo, dist, S, N);
-
-        int res = Integer.MAX_VALUE;
-        int endRoute = (1 << N) - 1;
-
-        for(int i = 0 ; i < N ; i++){
-            if(i == S || dist[i][S] == 0 || memo[i][endRoute] == Integer.MAX_VALUE){
-                continue;
+            st = new StringTokenizer(br.readLine());
+            Arrays.fill(dp[i], -1);
+            for (int j = 0; j < N; j++) {
+                dist[i][j] = Integer.parseInt(st.nextToken());
             }
-
-            res = Math.min(res, memo[i][endRoute] + dist[i][S]);
         }
 
-        System.out.println(res);
+
+        System.out.println(tsp(0, 1));
+
     }
 
-    private static void solve(int[][] memo, int[][] dist, int s, int n) {
-        for (int r = 3; r <= n; r++) {
-            List<Integer> combs = new ArrayList<>();
-            getComb(n, r, 0, 0, combs);
+    private static int tsp(int node, int visited) {
+        if (visited == ((1 << N) - 1)) {
+            return dist[node][0] == 0 ? INF : dist[node][0];
+        }
 
-            for(int comb : combs) {
-                if (notIn(comb, s)) {
-                    continue;
-                }
+        if (dp[node][visited] != -1) return dp[node][visited];
 
-                // next찾기
-                for (int next = 0; next < n; next++) {
-                    if(next == s || notIn(comb, next)) {
-                        continue;
-                    }
+        int cost = INF;
 
-                    int notIncludeNext = (1 << next) ^ comb;
-
-                    int min = Integer.MAX_VALUE;
-                    for (int e = 0; e < n; e++) {
-                        if(s == e || next == e || notIn(comb, e)) {
-                            continue;
-                        }
-
-                        if(memo[e][notIncludeNext] == Integer.MAX_VALUE || dist[e][next] == 0) {
-                            continue;
-                        }
-
-                        int nextDist = memo[e][notIncludeNext] + dist[e][next];
-                        min = Math.min(min, nextDist);
-                    }
-
-                    memo[next][comb] = min;
+        for (int i = 0; i < N; i++) {
+            if ((visited >> i & 1) == 0 && dist[node][i] != 0) {
+                int next = visited | (1 << i);
+                int result = tsp(i, next);
+                if (result != INF) {
+                    cost = Math.min(cost, result + dist[node][i]);
                 }
             }
         }
-    }
-
-    private static boolean notIn(int comb, int s) {
-        return ((1 << s) & comb) == 0;
-    }
-
-    private static void getComb(int n, int r, int idx, int b, List<Integer> combs) {
-        int remain = n - idx;
-        if (remain < r) {
-            return;
-        }
-
-        if (r == 0) {
-            combs.add(b);
-            return;
-        }
-
-        for (int i = idx; i < n; i++) {
-            int next = b | (1 << i);
-            getComb(n, r - 1, i + 1, next, combs);
-        }
-
-    }
-
-    private static int[][] setup(int s, int n, int[][] dist) {
-        int[][] memo = new int[n][1 << n];
-
-        for(int[] m : memo) {
-            Arrays.fill(m, Integer.MAX_VALUE);
-        }
-
-        for (int e = 0; e < n; e++) {
-            if (s == e || dist[s][e] == 0) {
-                continue;
-            }
-            memo[e][(1 << s) | (1 << e)] = dist[s][e];
-        }
-
-        return memo;
+        return dp[node][visited] = cost;
     }
 }
