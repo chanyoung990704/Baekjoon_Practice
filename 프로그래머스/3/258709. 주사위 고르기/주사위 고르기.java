@@ -1,93 +1,98 @@
 import java.util.*;
-import java.util.stream.*;
 
 class Solution {
-    
-    class DiceResult{
-        List<Integer> idxs;
-        int win;
-        
-        DiceResult(List<Integer> idxs, int win){
-            this.idxs = idxs;
-            this.win = win;
-        }
-    }
-    
-    List<DiceResult> res = new ArrayList<>();
-    
+    int[] answer;
+    int l, n;
+    long maxWins = -1; // 승리 횟수는 int 범위를 넘을 수 있음
+    int[][] dice;
+    int maxVal = 0;
+
     public int[] solution(int[][] dice) {
-        
-        getComb(0, dice, new TreeSet<>());
-        
-        res.sort(Comparator.comparing((DiceResult dr) -> dr.win).reversed());
-        
-        return res.get(0).idxs.stream().map(i -> i + 1).mapToInt(Integer::valueOf).toArray();
+        this.dice = dice;
+        this.n = dice.length;
+        this.l = n / 2;
+
+        // 1. 주사위 눈의 최대값 찾기 (배열 크기 결정용)
+        for (int[] d : dice) {
+            for (int v : d) maxVal = Math.max(maxVal, v);
+        }
+
+        // 2. 조합 탐색 시작
+        comb(0, 0, 0);
+        return answer;
     }
-    
-    void getComb(int start, int[][] dice, Set<Integer> results){
-        if(results.size() == dice.length / 2){
-            System.out.println(results.toString());
-            
-            List<Integer> aList = new ArrayList<>(results);
-            List<Integer> bList = new ArrayList<>();
-            for(int i = 0 ; i < dice.length ; i++){
-                if(!results.contains(i)){
-                    bList.add(i);
-                }
+
+    void comb(int idx, int selected, int cnt) {
+        if (cnt == l) {
+            calculateWins(selected);
+            return;
+        }
+
+        for (int i = idx; i < n; i++) {
+            if ((selected & (1 << i)) == 0) {
+                comb(i + 1, selected | (1 << i), cnt + 1);
             }
-            
-            List<Integer> aSums = new ArrayList<>();
-            List<Integer> bSums = new ArrayList<>();
-            dfs(aList, 0, dice, 0, aSums);
-            dfs(bList, 0, dice, 0, bSums);
-            
-            // 이분탐색 진행
-            bSums.sort(Comparator.naturalOrder());
-            int win = 0;
-            for(int i = 0 ; i < aSums.size() ; i++){
-                int target = aSums.get(i);
-                
-                int lo = 0;
-                int hi = bSums.size() - 1;
-                int ret = -1;
-                
-                while(lo <= hi){
-                    int mid = lo + (hi - lo) / 2;
-                    
-                    if(bSums.get(mid) < target){
-                        ret = mid;
-                        lo = mid + 1;
-                    }else{
-                        hi = mid - 1;
-                    }
-                }
-                
-                win += (ret + 1);
+        }
+    }
+
+    void calculateWins(int selected) {
+        int maxSum = maxVal * l;
+        int[] aFreq = new int[maxSum + 1];
+        int[] bFreq = new int[maxSum + 1];
+
+        // A와 B의 가능한 모든 합의 빈도수 계산
+        generateSumFreq(0, 0, 0, selected, aFreq, true);
+        generateSumFreq(0, 0, 0, selected, bFreq, false);
+
+        // B의 빈도수를 누적합으로 변환
+        long[] bPrefixSum = new long[maxSum + 1];
+        for (int i = 1; i <= maxSum; i++) {
+            bPrefixSum[i] = bPrefixSum[i - 1] + bFreq[i - 1];
+        }
+
+        // A가 이기는 총 횟수 계산
+        long currentWins = 0;
+        for (int i = 0; i <= maxSum; i++) {
+            if (aFreq[i] > 0) {
+                currentWins += (long) aFreq[i] * bPrefixSum[i];
             }
-            
-            System.out.println(aSums.size() + " " + win);
-            
-            res.add(new DiceResult(aList, win));
+        }
+
+        if (currentWins > maxWins) {
+            maxWins = currentWins;
+            storeAnswer(selected);
+        }
+    }
+
+    // 주사위 합의 빈도
+    void generateSumFreq(int diceIdx, int currentSum, int cnt, int selected, int[] freq, boolean isA) {
+
+        if (cnt == l) {
+            freq[currentSum]++;
             return;
         }
         
-        for(int i = start ; i < dice.length ; i++){
-            results.add(i);
-            getComb(i + 1, dice, results);
-            results.remove(i);
-        }
-    }
-    
-    void dfs(List<Integer> list, int idx, int[][] dice, int sum, List<Integer> sums){
-        
-        if(idx == dice.length / 2){
-            sums.add(sum);
+        if(diceIdx >= n){
             return;
         }
         
-        for(int i = 0 ; i < 6 ; i++){
-            dfs(list, idx + 1, dice, sum + dice[list.get(idx)][i], sums);
+        // 현재 인덱스의 주사위가 내가 찾고자 하는 팀의 것인지 확인
+        while (diceIdx < n) {
+            boolean isSelected = (selected & (1 << diceIdx)) != 0;
+            if (isSelected == isA) {
+                for (int val : dice[diceIdx]) {
+                    generateSumFreq(diceIdx + 1, currentSum + val, cnt + 1, selected, freq, isA);
+                }
+            }
+            diceIdx++;
         }
     }
-    
+
+    void storeAnswer(int selected) {
+        answer = new int[l];
+        int idx = 0;
+        for (int i = 0; i < n; i++) {
+            if ((selected & (1 << i)) != 0) answer[idx++] = i + 1;
+        }
+    }
 }
