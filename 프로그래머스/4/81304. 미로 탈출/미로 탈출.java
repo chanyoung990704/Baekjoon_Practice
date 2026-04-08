@@ -2,59 +2,90 @@ import java.util.*;
 
 class Solution {
     int INF = 1000000000;
-    
-    public int solution(int n, int start, int end, int[][] roads, int[] traps) {
-        List<List<int[]>> adj = new ArrayList<>();
-        for (int i = 0; i <= n; i++) adj.add(new ArrayList<>());
 
-        for (int[] r : roads) {
-            adj.get(r[0]).add(new int[]{r[1], r[2], 0}); // 정방향
-            adj.get(r[1]).add(new int[]{r[0], r[2], 1}); // 역방향
+    public int solution(int n, int start, int end, int[][] roads, int[] traps) {
+        // 1. 그래프 초기화 (0: 정방향, 1: 역방향)
+        List<List<int[]>>[] adj = new ArrayList[2];
+        for (int i = 0; i < 2; i++) {
+            adj[i] = new ArrayList<>();
+            for (int j = 0; j <= n; j++) {
+                adj[i].add(new ArrayList<>());
+            }
         }
 
-        int[][] dist = new int[n + 1][1 << traps.length];
-        for (int i = 0; i <= n; i++) Arrays.fill(dist[i], INF);
+        for (int[] road : roads) {
+            int from = road[0], to = road[1], weight = road[2];
+            adj[0].get(from).add(new int[]{to, weight});
+            adj[1].get(to).add(new int[]{from, weight});
+        }
+
+        // 2. 다익스트라 준비
+        int tlen = traps.length;
+        int[][] dist = new int[n + 1][1 << tlen];
+        for (int i = 0; i <= n; i++) {
+            Arrays.fill(dist[i], INF);
+        }
 
         PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
-        dist[start][0] = 0;
+        
+        // [현재까지 거리, 현재 노드, 현재 함정 비트마스크]
         pq.offer(new int[]{0, start, 0});
+        dist[start][0] = 0;
 
         while (!pq.isEmpty()) {
             int[] p = pq.poll();
-            int cost = p[0], node = p[1], state = p[2];
+            int currDist = p[0], currNode = p[1], bit = p[2];
 
-            if (node == end) return cost;
-            if (dist[node][state] < cost) continue;
+            if (currNode == end) return currDist;
+            if (dist[currNode][bit] < currDist) continue;
 
-            // 현재 노드가 몇 번째 함정인지 실시간 확인
-            int curTrapIdx = -1;
-            for (int i = 0; i < traps.length; i++) {
-                if (traps[i] == node) { curTrapIdx = i; break; }
-            }
-            boolean curTrapOn = (curTrapIdx != -1) && ((state & (1 << curTrapIdx)) != 0);
-
-            for (int[] edge : adj.get(node)) {
-                int next = edge[0], weight = edge[1], type = edge[2];
-
-                // 다음 노드가 몇 번째 함정인지 실시간 확인
-                int nextTrapIdx = -1;
-                for (int i = 0; i < traps.length; i++) {
-                    if (traps[i] == next) { nextTrapIdx = i; break; }
+            // 현재 노드의 함정 활성화 여부 확인
+            boolean currStatus = false;
+            for (int i = 0; i < tlen; i++) {
+                if (traps[i] == currNode && ((bit >> i) & 1) > 0) {
+                    currStatus = true;
+                    break;
                 }
-                boolean nextTrapOn = (nextTrapIdx != -1) && ((state & (1 << nextTrapIdx)) != 0);
+            }
 
-                // 방향 판별 로직 (XOR 연산과 동일)
-                if (type == (curTrapOn != nextTrapOn ? 1 : 0)) {
-                    int nextState = state;
-                    if (nextTrapIdx != -1) nextState ^= (1 << nextTrapIdx);
+            // 간선 탐색 (type 0: 원래 정방향이었던 길, type 1: 원래 역방향이었던 길)
+            for (int type = 0; type <= 1; type++) {
+                for (int[] next : adj[type].get(currNode)) {
+                    int nextNode = next[0];
+                    int edgeWeight = next[1];
 
-                    if (dist[next][nextState] > cost + weight) {
-                        dist[next][nextState] = cost + weight;
-                        pq.offer(new int[]{dist[next][nextState], next, nextState});
+                    // 다음 노드의 함정 활성화 여부 확인
+                    boolean nextStatus = false;
+                    for (int i = 0; i < tlen; i++) {
+                        if (traps[i] == nextNode && ((bit >> i) & 1) > 0) {
+                            nextStatus = true;
+                            break;
+                        }
+                    }
+
+                    // 논리 체크: 상태가 같으면 정방향(0), 다르면 역방향(1)이어야 이동 가능
+                    boolean isFlipped = (currStatus != nextStatus);
+                    int currentType = isFlipped ? 1 : 0;
+
+                    if (type != currentType) continue;
+
+                    // 다음 상태 비트 계산 (다음 노드가 함정이면 토글)
+                    int nextBit = bit;
+                    for (int i = 0; i < tlen; i++) {
+                        if (traps[i] == nextNode) {
+                            nextBit ^= (1 << i);
+                            break;
+                        }
+                    }
+
+                    if (dist[nextNode][nextBit] > currDist + edgeWeight) {
+                        dist[nextNode][nextBit] = currDist + edgeWeight;
+                        pq.offer(new int[]{dist[nextNode][nextBit], nextNode, nextBit});
                     }
                 }
             }
         }
+
         return -1;
     }
 }
