@@ -1,70 +1,54 @@
 import java.util.*;
-import java.util.stream.*;
 
 class Solution {
+    
+    int[][] grid = new int[1000][1000];
+    int answer = 0;
+
     public int solution(int[][] rectangle, int characterX, int characterY, int itemX, int itemY) {
         
-        // 이동 가능 영역
-        int[][] move = new int[102][102]; // y, x
-        for(int[] r : rectangle){
-            // 2배
-            for(int i = 0 ; i < 4;  i++){
-                r[i] *= 2;
+        //////////외곽선 따기///////////////////
+        
+        // 1. 모든 사각형의 영역을 1로 먼저 채움
+        for(int[] rect : rectangle){
+            for(int i = rect[0]*2; i <= rect[2]*2; i++)
+                for(int j = rect[1]*2; j <= rect[3]*2; j++) grid[j][i] = 1;
+        }
+
+        // 2. 그 후에 모든 사각형의 내부를 2로 덮어씀
+        for(int[] rect : rectangle){
+            for(int i = rect[0]*2 + 1; i < rect[2]*2; i++)
+                for(int j = rect[1]*2 + 1; j < rect[3]*2; j++) grid[j][i] = 2;
+        }
+        
+        ////////////////BFS하기///////////////////
+        Queue<int[]> q = new ArrayDeque<>();
+        boolean[][] visited = new boolean[grid.length][grid[0].length];
+        q.offer(new int[]{characterX * 2, characterY * 2, 0});
+        visited[characterY*2][characterX*2] = true;
+        
+        while(!q.isEmpty()){
+            int[] p = q.poll();
+            int r = p[1], c = p[0], cnt = p[2];
+            
+            if(r == itemY*2 && c == itemX*2){
+                return cnt/2;
             }
             
-            for(int i = r[0] ; i <= r[2] ; i++){
-                for(int j = r[1] ; j <= r[3] ; j++){
-                    // 테두리
-                    if(i == r[0] || i == r[2] || j == r[1] || j == r[3]){
-                        // 내부가 아닐때
-                        if(move[j][i] != 2){
-                            move[j][i] = 1;
-                        }
-                    }
-                    else{
-                        move[j][i] = 2;
+            int[] dr = new int[]{0,0,1,-1};
+            int[] dc = new int[]{1,-1,0,0};
+            
+            for(int d= 0 ; d< 4 ; d++){
+                int nr = r + dr[d], nc = c + dc[d];
+                if(nr >= 0 && nr <grid.length && nc >= 0 && nc < grid[0].length){
+                    if(grid[nr][nc] == 1 && !visited[nr][nc]){
+                        visited[nr][nc] = true;
+                        q.offer(new int[]{nc,nr,cnt+1});
                     }
                 }
             }
         }
         
-        // 2배
-        characterY *= 2;
-        characterX *= 2;
-        itemX *= 2;
-        itemY *= 2;
-        
-        // BFS
-        Deque<int[]> dq = new ArrayDeque<>();
-        dq.offer(new int[]{characterY, characterX, 0});
-        boolean[][] visited = new boolean[102][102];
-        visited[characterY][characterX] = true;
-        
-        while(!dq.isEmpty()){
-            int[] cur = dq.pollFirst();
-            int y = cur[0];
-            int x = cur[1];
-            int cnt = cur[2];
-            
-            // 도착
-            if(y == itemY && x == itemX){
-                return cnt / 2;
-            }
-            
-            int[] dy = new int[]{0,0,1,-1};
-            int[] dx = new int[]{1,-1,0,0};
-            
-            for(int i = 0 ; i < 4 ; i++){
-                int ny = y + dy[i];
-                int nx = x + dx[i];
-                if(move[ny][nx] == 1 && !visited[ny][nx]){
-                    visited[ny][nx] = true;
-                    dq.offer(new int[]{ny, nx, cnt + 1});
-                }
-            }
-        }
-        
-        int answer = 0;
         return answer;
     }
 }
