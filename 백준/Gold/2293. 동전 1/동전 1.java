@@ -1,42 +1,36 @@
-import java.io.*;
 import java.util.*;
-import java.util.stream.*;
+import java.io.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static StringTokenizer st;
 
-    public static void main(String[] args) throws Exception {
+    static int N, K;
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public static void main(String[] args) throws IOException {
+        st = new StringTokenizer(br.readLine());
 
-        int[] nk = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-        int n = nk[0];
-        int k = nk[1];
+        N = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(st.nextToken());
 
-        List<Integer> coins = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            coins.add(Integer.valueOf(br.readLine()));
+        int[] dp = new int[K + 1];
+
+        dp[0] = 1;
+        int[] nums = new int[N];
+
+        for (int i = 0; i < N; i++) {
+            nums[i] = Integer.parseInt(br.readLine());
         }
 
-        coins.sort(Comparator.naturalOrder());
-
-        // dp
-        int[][] dp = new int[n+1][k+1];
-        for (int i = 0; i <= n; i++) {
-            dp[i][0] = 1;
-        }
-
-        for (int i = 1; i <= n; i++) {
-            // 현재 코인 가치
-            int cur = coins.get(i-1);
-            for(int j = 0 ; j <= k ; j++){
-                // 현재 dp 초기화
-                dp[i][j] = dp[i-1][j];
-                if(j >= cur){
-                    dp[i][j] += dp[i][j-cur];
-                }
+        for (int num : nums) {
+            for (int i = num; i <= K; i++) {
+                dp[i] += dp[i - num];
             }
         }
 
-        System.out.println(dp[n][k]);
+        System.out.println(dp[K]);
+
+
     }
+
 }
