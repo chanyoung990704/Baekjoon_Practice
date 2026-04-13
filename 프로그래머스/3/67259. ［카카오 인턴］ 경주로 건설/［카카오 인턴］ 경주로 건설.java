@@ -1,67 +1,66 @@
 import java.util.*;
-import java.util.stream.*;
 
 class Solution {
-    // 상하좌우
-    int[] dy = new int[]{-1,1,0,0};
-    int[] dx = new int[]{0,0,-1,1};
-    int h, w;
+    int INF = 1000000000;
+    
+    int answer = INF;
+    
+    int[] dr = new int[]{-1,0,1,0};
+    int[] dc = new int[]{0,1,0,-1};
+    
+    int R,C;
+    
+    int straight = 100;
+    int cornor = 500;
     
     public int solution(int[][] board) {
-        h = board.length;
-        w = board[0].length;        
+        R = board.length; C = board[0].length;
         
-        // 다익스트라
-        int[][][] cost = new int[h][w][4];
-        for(int i = 0 ; i < h ; i++){
-            for(int j = 0 ; j < w ; j++){
-                Arrays.fill(cost[i][j], Integer.MAX_VALUE);
+        int[][][] dist = new int[4][R][C];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < R; j++) {
+                Arrays.fill(dist[i][j], INF);
             }
         }
         
-        PriorityQueue<List<Integer>> pq = new PriorityQueue<>(Comparator.comparing((List<Integer> li) -> li.get(0))); // 비용, 현재 방향, y, x
-        pq.offer(List.of(0, 1, 0, 0));
-        pq.offer(List.of(0, 3, 0, 0));
-        cost[0][0][1] = 0;
-        cost[0][0][3] = 0;
+        Queue<int[]> q = new ArrayDeque<>();
+        if (board[0][1] == 0) {
+            q.offer(new int[]{0, 1, 100, 1}); // 오른쪽
+            dist[1][0][1] = 100;
+        }
+        if (board[1][0] == 0) {
+            q.offer(new int[]{1, 0, 100, 2}); // 아래쪽
+            dist[2][1][0] = 100;
+        }
         
-        while(!pq.isEmpty()){
-            List<Integer> c = pq.poll();
-            int ccost = c.get(0);
-            int cdir = c.get(1);
-            int y = c.get(2);
-            int x = c.get(3);
+        while(!q.isEmpty()){
+            int[] P = q.poll();
+            int r = P[0], c = P[1], cost = P[2], D = P[3];
             
-            if(ccost > cost[y][x][cdir]){
-                continue;
-            }
-            
-            for(int i = 0 ; i < 4 ; i++){
-                int ny = y + dy[i];
-                int nx = x + dx[i];
-                if((ny >= 0 && ny < h && nx >= 0 && nx < w) && board[ny][nx] == 0){
-                    int nextCost = ccost + 100;
-                    // 코너 건설
-                    if((cdir == 0 || cdir == 1) && (i == 2 || i == 3)){
-                        nextCost += 500;
-                    }
-                    if((cdir == 2 || cdir == 3) && (i == 0 || i == 1)){
-                        nextCost += 500;
+            for(int d = 0 ; d < 4 ; d++){
+                int nr = r + dr[d], nc = c + dc[d];
+                if(range(nr,nc) && board[nr][nc] == 0){
+                    int next = cost + straight;
+                    if(d % 2 != D % 2){
+                        next += cornor;
                     }
                     
-                    if(nextCost < cost[ny][nx][i]){
-                        cost[ny][nx][i] = nextCost;
-                        pq.offer(List.of(nextCost, i, ny, nx));
+                    if(dist[d][nr][nc] > next){
+                        dist[d][nr][nc] = next;
+                        q.offer(new int[]{nr,nc,next,d});
                     }
                 }
             }
         }
         
-        int ret = Integer.MAX_VALUE;
-        for(int i = 0 ; i < 4 ; i++){
-            ret = Math.min(ret, cost[h-1][w-1][i]);
+        for(int d = 0 ; d < 4 ; d++){
+            answer = Math.min(answer, dist[d][R-1][C-1]);
         }
         
-        return ret;
+        return answer;
+    }
+    
+    boolean range(int r, int c){
+        return r>=0&&r<R&&c>=0&&c<C;
     }
 }
