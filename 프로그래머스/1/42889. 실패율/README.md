@@ -1,10 +1,10 @@
 # [level 1] 실패율 - 42889 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/42889?language=java) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/42889) 
 
 ### 성능 요약
 
-메모리: 79.5 MB, 시간: 7.20 ms
+메모리: 86.9 MB, 시간: 176.62 ms
 
 ### 구분
 
@@ -16,13 +16,13 @@
 
 ### 제출 일자
 
-2024년 07월 12일 15:29:57
+2026년 04월 15일 17:41:52
 
 ### 문제 설명
 
 <h2>실패율</h2>
 
-<p><img src="https://grepp-programmers.s3.amazonaws.com/files/production/bde471d8ac/48ddf1cc-c4ea-499d-b431-9727ee799191.png" title="" alt="failture_rate1.png"></p>
+<p><img src="https://asset.programmers.co.kr/files/production/bde471d8ac/48ddf1cc-c4ea-499d-b431-9727ee799191.png" title="" alt="failture_rate1.png"></p>
 
 <p>슈퍼 게임 개발자 오렐리는 큰 고민에 빠졌다. 그녀가 만든 프랜즈 오천성이 대성공을 거뒀지만, 요즘 신규 사용자의 수가 급감한 것이다. 원인은 신규 사용자와 기존 사용자 사이에 스테이지 차이가 너무 큰 것이 문제였다.</p>
 
